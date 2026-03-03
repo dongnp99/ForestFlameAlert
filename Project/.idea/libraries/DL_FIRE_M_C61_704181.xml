@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="DL_FIRE_M-C61_704181">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Data/MODIS/DL_FIRE_M-C61_704181.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

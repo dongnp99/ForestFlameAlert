@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="FIRMS">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Data/Daklak/meteorology/FIRMS/DL_FIRE_M-C61_713010.zip!/" />
+      <root url="jar://$PROJECT_DIR$/Data/Daklak/meteorology/FIRMS/DL_FIRE_J1V-C2_713011.zip!/" />
+      <root url="jar://$PROJECT_DIR$/Data/Daklak/meteorology/FIRMS/DL_FIRE_SV-C2_713012.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
