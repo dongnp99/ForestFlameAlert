@@ -35,9 +35,9 @@ FEATURE_COLS = [
     "vpd_30d_mean",
 
     # ===== Dryness =====
-    "dryness_14d",
-    "dryness_30d",
-    "consecutive_dry_days",
+    # "dryness_14d",
+    # "dryness_30d",
+    # "consecutive_dry_days",
 
     # ===== Interaction =====
     "wind_vpd",
@@ -63,7 +63,6 @@ FEATURE_COLS = [
     "neighbor_fire_1d",
     "neighbor_fire_3d",
     "neighbor_fire_7d",
-    "neighbor_fire_ratio_1d",
-    "neighbor_fire_ratio_3d",
-    "neighbor_fire_ratio_7d"
+    "vpd_neighbor_1d",
+    "vpd_fire_lag_1"
 ]

@@ -10,14 +10,12 @@ import gc
 from tqdm import trange
 from scipy.sparse import csr_matrix
 
-INPUT_PATH = "dataset_fire_final.csv"
 OUTPUT_PATH = "daklak_fire_xgb_additional_features.parquet"
 ADJ_PATH = "grid_adjacency.pkl"
 CHUNK_SIZE = 1_000_000  # 1 triệu dòng
 
 print("Loading data...")
-df = pd.read_csv(INPUT_PATH, parse_dates=["date"])
-
+df = pd.read_parquet("dataset_fire_final.parquet")
 # ===============================
 # SORT (BẮT BUỘC)
 # ===============================
@@ -33,7 +31,8 @@ g = df.groupby("grid_id", group_keys=False)
 # =========================================================
 print("Creating rolling features...")
 
-for window in [7, 14, 30]:
+for window in [14, 30]:
+
     df[f"rain_{window}d_sum"] = (
         g["rain"].transform(lambda x: x.rolling(window, 1).sum())
         .astype("float32")
@@ -44,37 +43,32 @@ for window in [7, 14, 30]:
         .astype("float32")
     )
 
-    df[f"wind_{window}d_mean"] = (
-        g["wind"].transform(lambda x: x.rolling(window, 1).mean())
-        .astype("float32")
-    )
-
 # =========================================================
 # 2️⃣ DRYNESS INDEX
 # =========================================================
-print("Creating dryness index...")
-
-df["dryness_14d"] = (
-    df["vpd_14d_mean"] - 0.1 * df["rain_14d_sum"]
-).astype("float32")
-
-df["dryness_30d"] = (
-    df["vpd_30d_mean"] - 0.05 * df["rain_30d_sum"]
-).astype("float32")
+# print("Creating dryness index...")
+#
+# df["dryness_14d"] = (
+#     df["vpd_14d_mean"] - 0.1 * df["rain_14d_sum"]
+# ).astype("float32")
+#
+# df["dryness_30d"] = (
+#     df["vpd_30d_mean"] - 0.05 * df["rain_30d_sum"]
+# ).astype("float32")
 
 # =========================================================
 # 3️⃣ CONSECUTIVE DRY DAYS
 # =========================================================
-print("Creating consecutive dry days...")
-
-def consecutive_dry(x):
-    dry = (x < 1).astype(int)
-    return dry * (dry.groupby((dry != dry.shift()).cumsum()).cumcount() + 1)
-
-df["consecutive_dry_days"] = (
-    g["rain"].transform(consecutive_dry)
-    .astype("int16")
-)
+# print("Creating consecutive dry days...")
+#
+# def consecutive_dry(x):
+#     dry = (x < 1).astype(int)
+#     return dry * (dry.groupby((dry != dry.shift()).cumsum()).cumcount() + 1)
+#
+# df["consecutive_dry_days"] = (
+#     g["rain"].transform(consecutive_dry)
+#     .astype("int16")
+# )
 
 # =========================================================
 # 4️⃣ LAG FEATURES
@@ -82,14 +76,6 @@ df["consecutive_dry_days"] = (
 print("Creating lag features...")
 
 for lag in [1, 3, 7]:
-    df[f"vpd_lag_{lag}"] = (
-        g["vpd"].shift(lag).fillna(0).astype("float32")
-    )
-
-    df[f"rain_lag_{lag}"] = (
-        g["rain"].shift(lag).fillna(0).astype("float32")
-    )
-
     df[f"fire_lag_{lag}"] = (
         g["fire"].shift(lag).fillna(0).astype("int8")
     )
@@ -151,14 +137,24 @@ for date in tqdm(unique_dates):
     df.loc[mask, "neighbor_fire_1d"] = nf1
     df.loc[mask, "neighbor_fire_3d"] = nf3
     df.loc[mask, "neighbor_fire_7d"] = nf7
+
+df["neighbor_fire_1d"] = df["neighbor_fire_1d"].astype("float32")
+df["neighbor_fire_3d"] = df["neighbor_fire_3d"].astype("float32")
+df["neighbor_fire_7d"] = df["neighbor_fire_7d"].astype("float32")
 # =========================================================
 # 6️⃣ INTERACTION FEATURES
 # =========================================================
 print("Creating interaction features...")
 
 df["wind_vpd"] = (df["wind"] * df["vpd"]).astype("float32")
-df["slope_wind"] = (df["slp_mean"] * df["wind"]).astype("float32")
-df["aspect_wind"] = (df["aspect_sin"] * df["wind"]).astype("float32")
+
+df["vpd_neighbor_1d"] = (
+    df["vpd"] * df["neighbor_fire_1d"]
+).astype("float32")
+
+df["vpd_fire_lag_1"] = (
+    df["vpd"] * df["fire_lag_1"]
+).astype("float32")
 
 # =========================================================
 # 7️⃣ SEASONAL FEATURE
@@ -168,15 +164,16 @@ print("Creating seasonal features...")
 df["doy"] = df["date"].dt.dayofyear
 df["sin_doy"] = np.sin(2 * np.pi * df["doy"] / 365).astype("float32")
 df["cos_doy"] = np.cos(2 * np.pi * df["doy"] / 365).astype("float32")
-df = df.drop(columns=["doy"])
-
+del df["doy"]
 # =========================================================
 # 8️⃣ OPTIMIZE DTYPES
 # =========================================================
-print("Optimizing dtypes...")
+print("Final dtype check...")
 
-float_cols = df.select_dtypes(include=["float64"]).columns
-df[float_cols] = df[float_cols].astype("float32")
+# ép thủ công những cột chắc chắn còn float64 nếu có
+for col in df.columns:
+    if df[col].dtype == "float64":
+        df[col] = df[col].astype("float32")
 
 df["fire"] = df["fire"].astype("int8")
 

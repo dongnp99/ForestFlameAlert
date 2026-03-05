@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import xgboost as xgb
 from sklearn.metrics import average_precision_score, roc_auc_score
 import xgb_config
@@ -50,41 +49,10 @@ print("Train size:", len(train_df))
 print("Val size:", len(val_df))
 print("Test size:", len(test_df))
 
-# ==========================================================
-# 2️⃣ SAFE NEIGHBOR RATIO (NO NaN, NO float64)
-# ==========================================================
-
-def add_neighbor_ratio(df):
-
-    for w in [1, 3, 7]:
-        col = f"neighbor_fire_{w}d"
-
-        if col in df.columns:
-
-            num = df[col].values.astype(np.float32)
-            den = df["neighbor_count"].values.astype(np.float32)
-
-            ratio = np.divide(
-                num,
-                den,
-                out=np.zeros_like(num, dtype=np.float32),
-                where=den != 0
-            )
-
-            df[f"neighbor_fire_ratio_{w}d"] = ratio.astype("float32")
-
-    return df
-
-
-print("Creating neighbor_fire_ratio...")
-train_df = add_neighbor_ratio(train_df)
-val_df   = add_neighbor_ratio(val_df)
-test_df  = add_neighbor_ratio(test_df)
-
 gc.collect()
 
 # ==========================================================
-# 3️⃣ CREATE MATRICES (NO EXTRA COPIES)
+# 2️⃣ CREATE MATRICES (NO EXTRA COPIES)
 # ==========================================================
 
 X_train = train_df[xgb_config.FEATURE_COLS]
@@ -102,7 +70,7 @@ del train_df, val_df, test_df
 gc.collect()
 
 # ==========================================================
-# 4️⃣ SCALE POS WEIGHT
+# 3️⃣ SCALE POS WEIGHT
 # ==========================================================
 
 neg = (y_train == 0).sum()
@@ -112,7 +80,7 @@ scale_pos_weight = neg / pos
 print("scale_pos_weight:", scale_pos_weight)
 
 # ==========================================================
-# 5️⃣ MODEL PARAMS
+# 4️⃣ MODEL PARAMS
 # ==========================================================
 
 params = {
@@ -125,7 +93,7 @@ params = {
 }
 
 # ==========================================================
-# 6️⃣ QUANTILE DMATRIX (GPU SAFE)
+# 5️⃣ QUANTILE DMATRIX (GPU SAFE)
 # ==========================================================
 
 print("Creating QuantileDMatrix...")
@@ -138,7 +106,7 @@ del X_train, X_val, X_test
 gc.collect()
 
 # ==========================================================
-# 7️⃣ TRAIN
+# 6️⃣ TRAIN
 # ==========================================================
 
 print("Training...")
@@ -153,7 +121,7 @@ model = xgb.train(
 )
 
 # ==========================================================
-# 8️⃣ EVALUATE
+# 7️⃣ EVALUATE
 # ==========================================================
 
 print("Evaluating...")
@@ -175,5 +143,5 @@ print("Validation ROC-AUC:", val_roc)
 print("Test ROC-AUC:", test_roc)
 print("===================================")
 
-model.save_model("models/xgb_fire_full_gpu_af.json")
+model.save_model("models/xgb_fire_full_gpu_clean.json")
 print("Model saved.")

@@ -19,19 +19,45 @@ logging.info("Loading data...")
 # =============================
 # LOAD DATA
 # =============================
+def load_split(filters):
 
-df = pd.read_csv(xgb_config.DATA_PATH, parse_dates=["date"])
-df[xgb_config.FEATURE_COLS] = df[xgb_config.FEATURE_COLS].astype("float32")
+    df = pd.read_parquet(
+        xgb_config.DATA_PATH,
+        filters=filters,
+        engine="pyarrow"
+    )
 
-train_df = df[df["date"] <= xgb_config.TRAIN_END_DATE].copy()
-val_df = df[
-    (df["date"] > xgb_config.TRAIN_END_DATE) &
-    (df["date"] <= xgb_config.VAL_END_DATE)
-].copy()
-test_df = df[
-    (df["date"] > xgb_config.VAL_END_DATE) &
-    (df["date"] <= xgb_config.TEST_END_DATE)
-].copy()
+    # đảm bảo dtype nhỏ
+    df["fire"] = df["fire"].astype("int8")
+    df["neighbor_count"] = df["neighbor_count"].astype("int8")
+
+    for col in xgb_config.FEATURE_COLS:
+        if col in df.columns:
+            df[col] = df[col].astype("float32")
+
+    return df
+
+logging.info("Loading train set...")
+train_df = load_split([
+    ("date", "<=", pd.Timestamp(xgb_config.TRAIN_END_DATE))
+])
+
+logging.info("Loading val set...")
+val_df = load_split([
+    ("date", ">",  pd.Timestamp(xgb_config.TRAIN_END_DATE)),
+    ("date", "<=", pd.Timestamp(xgb_config.VAL_END_DATE))
+])
+
+logging.info("Loading test set...")
+test_df = load_split([
+    ("date", ">", pd.Timestamp(xgb_config.VAL_END_DATE))
+])
+
+logging.info("Train size: %s", len(train_df))
+logging.info("Val size: %s", len(val_df))
+logging.info("Test size: %s", len(test_df))
+gc.collect()
+
 
 X_train = train_df[xgb_config.FEATURE_COLS]
 y_train = train_df["fire"]
@@ -42,11 +68,9 @@ y_val = val_df["fire"]
 X_test = test_df[xgb_config.FEATURE_COLS]
 y_test = test_df["fire"]
 
-logging.info(f"Train size: {len(X_train)}")
-logging.info(f"Val size: {len(X_val)}")
-logging.info(f"Test size: {len(X_test)}")
+logging.info("Train fire rate: %.6f", y_train.mean())
 
-del df
+del train_df, val_df, test_df
 gc.collect()
 
 # =============================
@@ -54,20 +78,22 @@ gc.collect()
 # =============================
 
 best_params = {
-    'max_depth': 7,
-    'min_child_weight': 3,
-    'learning_rate': 0.024112764664411382,
-    'subsample': 0.9266855235616202,
-    'colsample_bytree': 0.9731718307245405,
-    'gamma': 0.038276295122049345,
-    'reg_lambda': 3.1196855460633235,
-    'reg_alpha': 2.0083989794095136,
-    'scale_pos_weight': 703.5395883034547,
+    "max_depth": 6,
+    "min_child_weight": 14,
+    "learning_rate": 0.05492840731823069,
+    "subsample": 0.7380574174836383,
+    "colsample_bytree": 0.845377362927354,
+    "gamma": 1.1268230706741285,
+    "reg_lambda": 8.89203532155487,
+    "reg_alpha": 3.770634003396035,
+    "scale_pos_weight": 672.4936647367721,
     "objective": "binary:logistic",
     "eval_metric": "aucpr",
     "tree_method": "hist",
     "device": "cuda",
-    "random_state": xgb_config.RANDOM_STATE
+    "random_state": 42,
+    "max_bin": 256,
+    "grow_policy": "lossguide"
 }
 
 # =============================
@@ -122,5 +148,5 @@ logging.info("===================================")
 # SAVE MODEL
 # =============================
 
-model.save_model("models/xgb_fire_tuned.json")
-logging.info("Model saved to models/xgb_fire_tuned.json")
+model.save_model("models/xgb_fire_after_tuned.json")
+logging.info("Model saved to models/xgb_fire_after_tuned.json")
