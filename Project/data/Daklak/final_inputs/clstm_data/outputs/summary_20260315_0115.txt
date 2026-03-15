@@ -1,0 +1,9 @@
+run_id       : 20260315_0115
+device       : cuda
+best_epoch   : 28
+val_auc_pr   : 0.015958
+val_recall   : 0.104400
+best_thresh  : 0.7607
+pos_weight   : 824.0
+model_cfg    : {'seq_len': 7, 'H': 137, 'W': 138, 'n_feat': 25, 'filters': [64, 32], 'kernel': 3, 'dropout': 0.3, 'fl_gamma': 2.0, 'fl_alpha': 0.75, 'lr': 0.001, 'clipnorm': 1.0}
+train_cfg    : {'epochs': 100, 'batch_size': 8, 'patience': 10, 'lr_patience': 5, 'lr_factor': 0.5, 'min_lr': 1e-06}

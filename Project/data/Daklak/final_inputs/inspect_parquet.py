@@ -3,7 +3,7 @@ import pyarrow.dataset as ds
 import pandas as pd
 import numpy as np
 
-PARQUET_PATH = "daklak_fire_xgb_additional_features.parquet"
+PARQUET_PATH = "clstm_data/clstm_clean_data.parquet"
 
 print("========================================")
 print("Opening parquet file...")
