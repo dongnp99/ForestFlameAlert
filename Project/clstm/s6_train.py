@@ -15,32 +15,31 @@ from s5_model import build_model
 # ================================================================
 # CẤU HÌNH
 # ================================================================
-from config import OUTPUT_DATA_PATH
+from config import OUTPUT_MODEL_PATH
 
-OUTPUT_DIR = Path(OUTPUT_DATA_PATH) / "outputs"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR = Path(OUTPUT_MODEL_PATH)
 
 RUN_ID = datetime.now().strftime("%Y%m%d_%H%M")
 
 MODEL_CFG = {
-    "seq_len":  14,
+    "seq_len":  7,
     "H":        137,
     "W":        138,
-    "n_feat":   25,
+    "n_feat":   16,
     "filters":  [64, 32],
     "kernel":   3,
-    "dropout":  0.3,
+    "dropout":  0.5,
     "fl_gamma": 2.0,
-    "fl_alpha": 0.75,   # tăng từ 0.25 → 0.75
+    "fl_alpha": 0.85,   # tăng từ 0.25 → 0.75
     "lr":       5e-4,
     "clipnorm": 1.0,
 }
 
 TRAIN_CFG = {
-    "epochs":      100,
-    "batch_size":  4,       # tăng từ 4 → 8
-    "patience":    10,
-    "lr_patience": 5,
+    "epochs":      300,
+    "batch_size":  8,
+    "patience":    40,
+    "lr_patience": 10,
     "lr_factor":   0.5,
     "min_lr":      1e-6,
 }
@@ -180,7 +179,7 @@ def train():
             batch_size = TRAIN_CFG["batch_size"],
         )
     print(f"  pos_weight raw : {pos_weight:.1f}x")
-    pos_weight = min(pos_weight, 50.0)  # cap tối đa 50, không để ~900
+    pos_weight = pos_weight  # không cap, comment: ~854x với fire rate 0.00117
     print(f"  pos_weight cap : {pos_weight:.1f}x")
 
     # ── 2. Model ─────────────────────────────────────────────────
@@ -321,7 +320,7 @@ def train():
                 "train_cfg":       TRAIN_CFG,
                 "pos_weight":      pos_weight,
             }, model_path)
-            print(f"  ✓ Best model saved  "
+            print(f"  [OK] Best model saved  "
                   f"(val_auc_pr={best_auc_pr:.4f}  "
                   f"recall={val_recall:.4f}  "
                   f"thresh={best_thresh:.3f})")
@@ -339,7 +338,7 @@ def train():
     # ── 5. Kết quả ───────────────────────────────────────────────
     print("\n[5/5] Lưu kết quả...")
 
-    ckpt = torch.load(model_path, map_location=DEVICE)
+    ckpt = torch.load(model_path, map_location=DEVICE, weights_only=True)
     print(f"\n{'='*55}")
     print("KẾT QUẢ TRAINING")
     print(f"{'='*55}")

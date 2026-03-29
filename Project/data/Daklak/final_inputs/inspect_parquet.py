@@ -1,84 +1,34 @@
-import pyarrow.parquet as pq
-import pyarrow.dataset as ds
 import pandas as pd
-import numpy as np
+import pyarrow.parquet as pq
 
-PARQUET_PATH = "clstm_data/clstm_clean_data.parquet"
+PATH = "veg_indices_daily.parquet"
 
-print("========================================")
-print("Opening parquet file...")
-print("========================================")
+# --- Schema & file metadata (no full load needed) ---
+pf = pq.read_metadata(PATH)
+print(f"Rows: {pf.num_rows:,}  |  Row groups: {pf.num_row_groups}  |  Size: {pf.serialized_size / 1e6:.1f} MB")
 
-# ======================================================
-# 1️⃣ READ METADATA (NO FULL LOAD)
-# ======================================================
-
-pq_file = pq.ParquetFile(PARQUET_PATH)
-
-print("\nNumber of row groups:", pq_file.num_row_groups)
-print("Number of rows:", pq_file.metadata.num_rows)
-print("Number of columns:", pq_file.metadata.num_columns)
-
+schema = pq.read_schema(PATH)
 print("\nSchema:")
-print(pq_file.schema)
+print(schema)
 
-# ======================================================
-# 2️⃣ LOAD SMALL SAMPLE
-# ======================================================
+# --- Load full dataframe ---
+df = pd.read_parquet(PATH)
 
-print("\nLoading first 5 rows...")
+print("\nDtypes:")
+print(df.dtypes)
 
-sample = pq_file.read_row_group(0).to_pandas().head(5)
-print(sample)
+print("\nHead:")
+print(df.head(3))
 
-# ======================================================
-# 3️⃣ CHECK DTYPES (sample-based)
-# ======================================================
+print("\nBasic stats:")
+print(df.describe())
 
-print("\nColumn dtypes (sample):")
-print(sample.dtypes)
+print(f"\ngrid_id range : {df['grid_id'].min()} → {df['grid_id'].max()}")
+print(f"Unique grids  : {df['grid_id'].nunique():,}")
+print(f"Date range    : {df['date'].min()} → {df['date'].max()}")
+print(f"\nFire label distribution:")
+print(df["fire"].value_counts())
 
-# ======================================================
-# 4️⃣ QUICK FIRE RATE CHECK
-# ======================================================
-
-dataset = ds.dataset(PARQUET_PATH)
-
-fire_col = dataset.to_table(columns=["fire"]).column("fire").to_numpy()
-
-fire_rate = fire_col.mean()
-
-print("\nFire rate:", fire_rate)
-print("Positive samples:", fire_col.sum())
-print("Total samples:", len(fire_col))
-
-# ======================================================
-# 5️⃣ NULL CHECK (SAFE METHOD)
-# ======================================================
-
-print("\nChecking null counts per column...")
-
-null_counts = {}
-
-for col in pq_file.schema.names:
-    arr = dataset.to_table(columns=[col]).column(col)
-    null_counts[col] = arr.null_count
-
-null_df = pd.DataFrame.from_dict(null_counts, orient="index", columns=["null_count"])
-print(null_df.sort_values("null_count", ascending=False).head(20))
-
-# ======================================================
-# 6️⃣ MEMORY ESTIMATE
-# ======================================================
-
-print("\nEstimating memory usage (approx)...")
-
-total_bytes = 0
-
-for col in pq_file.schema.names:
-    arr = dataset.to_table(columns=[col]).column(col)
-    total_bytes += arr.nbytes
-
-print("Estimated memory if fully loaded (GB):", round(total_bytes / 1e9, 2))
-
-print("\nDone.")
+print(f"\nMissing values:")
+missing = df.isna().sum()
+print(missing[missing > 0] if missing.any() else "None")

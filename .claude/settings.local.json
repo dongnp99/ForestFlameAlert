@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python s6_train.py)",
+      "Bash(PYTHONUTF8=1 python s6_train.py)",
+      "Bash(python:*)"
+    ]
+  }
+}

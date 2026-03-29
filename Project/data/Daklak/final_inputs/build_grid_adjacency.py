@@ -47,7 +47,7 @@ print("Adjacency computed.")
 # =========================
 # SAVE
 # =========================
-with open("grid_adjacency.pkl", "wb") as f:
+with open("xgb_veg_indices/grid_adjacency.pkl", "wb") as f:
     pickle.dump(adjacency, f)
 
 print("Saved grid_adjacency.pkl")

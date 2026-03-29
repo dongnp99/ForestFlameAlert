@@ -20,57 +20,46 @@ logging.info("Loading data...")
 # LOAD DATA
 # =============================
 def load_split(filters):
-
+    # Only load feature cols + fire — skip unused columns to save RAM
     df = pd.read_parquet(
         xgb_config.DATA_PATH,
+        columns=xgb_config.FEATURE_COLS + ["fire"],
         filters=filters,
         engine="pyarrow"
     )
-
-    # đảm bảo dtype nhỏ
     df["fire"] = df["fire"].astype("int8")
-    df["neighbor_count"] = df["neighbor_count"].astype("int8")
-
     for col in xgb_config.FEATURE_COLS:
         if col in df.columns:
             df[col] = df[col].astype("float32")
-
     return df
 
+# Load one split at a time, extract X/y, then delete before loading the next
 logging.info("Loading train set...")
-train_df = load_split([
-    ("date", "<=", pd.Timestamp(xgb_config.TRAIN_END_DATE))
-])
+train_df = load_split([("date", "<=", pd.Timestamp(xgb_config.TRAIN_END_DATE))])
+logging.info("Train size: %s", len(train_df))
+X_train = train_df[xgb_config.FEATURE_COLS]
+y_train = train_df["fire"]
+logging.info("Train fire rate: %.6f", y_train.mean())
+del train_df
+gc.collect()
 
 logging.info("Loading val set...")
 val_df = load_split([
     ("date", ">",  pd.Timestamp(xgb_config.TRAIN_END_DATE)),
     ("date", "<=", pd.Timestamp(xgb_config.VAL_END_DATE))
 ])
-
-logging.info("Loading test set...")
-test_df = load_split([
-    ("date", ">", pd.Timestamp(xgb_config.VAL_END_DATE))
-])
-
-logging.info("Train size: %s", len(train_df))
 logging.info("Val size: %s", len(val_df))
-logging.info("Test size: %s", len(test_df))
-gc.collect()
-
-
-X_train = train_df[xgb_config.FEATURE_COLS]
-y_train = train_df["fire"]
-
 X_val = val_df[xgb_config.FEATURE_COLS]
 y_val = val_df["fire"]
+del val_df
+gc.collect()
 
+logging.info("Loading test set...")
+test_df = load_split([("date", ">", pd.Timestamp(xgb_config.VAL_END_DATE))])
+logging.info("Test size: %s", len(test_df))
 X_test = test_df[xgb_config.FEATURE_COLS]
 y_test = test_df["fire"]
-
-logging.info("Train fire rate: %.6f", y_train.mean())
-
-del train_df, val_df, test_df
+del test_df
 gc.collect()
 
 # =============================
@@ -78,23 +67,24 @@ gc.collect()
 # =============================
 
 best_params = {
-    "max_depth": 6,
-    "min_child_weight": 14,
-    "learning_rate": 0.05492840731823069,
-    "subsample": 0.7380574174836383,
-    "colsample_bytree": 0.845377362927354,
-    "gamma": 1.1268230706741285,
-    "reg_lambda": 8.89203532155487,
-    "reg_alpha": 3.770634003396035,
-    "scale_pos_weight": 672.4936647367721,
-    "objective": "binary:logistic",
-    "eval_metric": "aucpr",
-    "tree_method": "hist",
-    "device": "cuda",
-    "random_state": 42,
-    "max_bin": 256,
-    "grow_policy": "lossguide"
+  "max_depth":        8,
+  "min_child_weight": 15,
+  "learning_rate":    0.06257960621774133,
+  "subsample":        0.8095304694689628,
+  "colsample_bytree": 0.6546065241548528,
+  "gamma":            0.7799726016810132,
+  "reg_lambda":       8.0,        # adjusted from 1.05 — TPE consensus
+  "reg_alpha":        4.330880728874676,
+  "scale_pos_weight": 828.4237170569176,
+  "objective":        "binary:logistic",
+  "eval_metric":      "aucpr",
+  "tree_method":      "hist",
+  "device":           "cuda",
+  "random_state":     42,
+  "max_bin":          256,
+  "grow_policy":      "lossguide"
 }
+
 
 # =============================
 # CREATE DMATRIX

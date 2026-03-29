@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from pathlib import Path
 
 # ================================================================
@@ -15,7 +15,7 @@ BATCH_SIZE  = 8
 NUM_WORKERS = 0
 PIN_MEMORY  = True
 
-H, W, N_FEAT = 137, 138, 25
+H, W, N_FEAT = 137, 138, 16
 
 
 # ================================================================
@@ -129,13 +129,35 @@ def build_all_dataloaders(
     test_ds  = WildfireDataset(splits["test"]["X"],
                                splits["test"]["y"],  seq_len)
 
+    # --- WeightedRandomSampler: oversample sequences containing fire ---
+    # For each sequence ending at index i, weight = max fire count in the window.
+    # Adding 1 ensures non-fire sequences are still sampled (just rarely).
+    print("\nBuild WeightedRandomSampler...")
+    y_train_arr = splits["train"]["y"]   # mmap (T, H, W, 1)
+    fire_per_day = np.array([
+        float(y_train_arr[t].sum()) for t in range(len(y_train_arr))
+    ])
+    # Use log(count+1) to soften the weight range (avoids extreme oversampling)
+    sample_weights = np.array([
+        float(np.log1p(fire_per_day[i - seq_len : i].max())) + 1.0
+        for i in train_ds.indices
+    ], dtype=np.float32)
+    sampler = WeightedRandomSampler(
+        weights     = torch.from_numpy(sample_weights),
+        num_samples = len(sample_weights),
+        replacement = True,
+    )
+    n_fire_seq = int((sample_weights > 1.0).sum())
+    print(f"  sequences with fire : {n_fire_seq}/{len(sample_weights)}")
+    print(f"  weight range        : [{sample_weights.min():.2f}, {sample_weights.max():.2f}]")
+
     # --- DataLoaders ---
-    # train: shuffle=True — xáo thứ tự sample (không ảnh hưởng time order bên trong sequence)
+    # train: sampler replaces shuffle=True — oversample fire-containing sequences
     # val/test: shuffle=False — giữ nguyên thứ tự để evaluate đúng
     train_loader = DataLoader(
         train_ds,
         batch_size  = batch_size,
-        shuffle     = True,
+        sampler     = sampler,
         num_workers = num_workers,
         pin_memory  = PIN_MEMORY,
         drop_last   = True,    # bỏ batch cuối nếu không đủ batch_size
@@ -159,7 +181,7 @@ def build_all_dataloaders(
     print("\nSanity check — lấy 1 batch từ train_loader...")
     x_batch, y_batch = next(iter(train_loader))
     print(f"  x_batch.shape : {x_batch.shape}")
-    # → (4, 7, 25, 137, 138)
+    # -> (4, 7, 16, 137, 138)
     #    B  seq C   H   W
     print(f"  y_batch.shape : {y_batch.shape}")
     # → (4, 1, 137, 138)

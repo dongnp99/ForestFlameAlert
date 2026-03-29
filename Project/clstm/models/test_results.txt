@@ -1,0 +1,15 @@
+CONVLSTM — TEST SET RESULTS
+========================================
+model_path  : models\best_model_20260327_1038.pt
+best_epoch  : 53
+val_auc_pr  : 0.011901
+----------------------------------------
+auc_pr      : 0.014932
+auc_roc     : 0.888724
+threshold   : 0.7940
+recall      : 0.119306
+precision   : 0.029409
+f1          : 0.047187
+csi         : 0.024163
+fpr         : 0.004717
+tp=1954 fp=64488 fn=14424 tn=13607078

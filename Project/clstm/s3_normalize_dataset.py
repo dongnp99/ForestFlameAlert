@@ -1,33 +1,32 @@
 import numpy as np
 from pathlib import Path
-from config import OUTPUT_DATA_PATH
+from config import OUTPUT_DATA_PATH, TRAIN_END_DATE, VAL_END_DATE
 
 TENSOR_PATH = OUTPUT_DATA_PATH + "/clstm_tensor.npy"
 SAVE_DIR    = Path(OUTPUT_DATA_PATH) / "processed"
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Tỷ lệ split theo thời gian
-TRAIN_RATIO = 0.70
-VAL_RATIO   = 0.15
-# TEST_RATIO  = 0.15 (phần còn lại)
 
 # Vị trí cột "fire" trong tensor (cột cuối cùng)
 # build_grid_maps.py lấy feature_cols = tất cả trừ grid_id và date
 # → "fire" là 1 trong 26 cột, cần xác định đúng index
 FIRE_COL_NAME = "fire"
 
-# Index các feature liên tục cần normalize (0-based trong 25 features)
-# Sau khi bỏ cột fire, thứ tự 25 features còn lại:
+# Index các feature liên tục cần normalize (0-based trong 16 features)
+# Sau khi bỏ cột fire (idx 16), thứ tự 16 features còn lại:
 # 0:tmean, 1:rh, 2:wind, 3:rain, 4:vpd,
-# 5:dem_mean, 6:slp_mean, 7:aspect_sin, 8:aspect_cos,
-# 9:rain_14d_sum, 10:vpd_14d_mean, 11:rain_30d_sum, 12:vpd_30d_mean
-# 13:fire_lag_1, 14:fire_lag_3, 15:fire_lag_7,
-# 16:neighbor_count,
-# 17:neighbor_fire_1d, 18:neighbor_fire_3d, 19:neighbor_fire_7d,
-# 20:wind_vpd, 21:vpd_neighbor_1d, 22:vpd_fire_lag_1,
-# 23:sin_doy, 24:cos_doy
-CONTINUOUS_IDX = list(range(13))   # index 0–12: continuous features
-# Index 13–24: binary/lag/cyclic → KHÔNG normalize
+# 5:rain_14d_sum, 6:vpd_14d_mean,
+# 7:fire_lag_1, 8:fire_lag_3,
+# 9:neighbor_count,
+# 10:neighbor_fire_1d, 11:neighbor_fire_3d,
+# 12:sin_doy, 13:cos_doy,
+# 14:ndvi, 15:nbr
+CONTINUOUS_IDX = [0, 1, 2, 3, 4, 5, 6, 10, 11]
+# 0-4 : tmean rh wind rain vpd
+# 5-6 : rain_14d_sum vpd_14d_mean
+# 10-11: neighbor_fire_1d neighbor_fire_3d
+# NOT normalized: fire_lag 7,8 (binary 0/1), neighbor_count 9 (int),
+#                 sin/cos_doy 12,13 (cyclic [-1,1]), ndvi/nbr 14,15 (bounded [-1,1])
 
 
 # ================================================================
@@ -39,7 +38,7 @@ print("BƯỚC 1: Load tensor")
 print("=" * 50)
 
 tensor = np.load(TENSOR_PATH, mmap_mode="r")
-print(f"  tensor.shape : {tensor.shape}")   # (3653, 137, 138, 26)
+print(f"  tensor.shape : {tensor.shape}")   # (3653, 137, 138, 17)
 print(f"  dtype        : {tensor.dtype}")
 T, H, W, C = tensor.shape
 
@@ -114,8 +113,22 @@ print(f"  Fire ratio  : {fire_ratio:.4%}")   # kỳ vọng ~0.11%
 # ================================================================
 print("\nBƯỚC 4: Train/Val/Test split (theo thời gian)")
 
-train_end = int(T * TRAIN_RATIO)
-val_end   = int(T * (TRAIN_RATIO + VAL_RATIO))
+TRAIN_END = pd.Timestamp(TRAIN_END_DATE)  # 2020-12-31
+VAL_END   = pd.Timestamp(VAL_END_DATE)    # 2022-12-31
+
+# Load cột date từ parquet để lấy danh sách ngày đúng thứ tự
+date_series = pd.read_parquet(
+    OUTPUT_DATA_PATH + "/clstm_clean_data.parquet",
+    columns=[DATE_COL]
+)[DATE_COL]
+unique_dates = np.sort(date_series.unique())  # (T,) — đã sort tăng dần
+
+assert len(unique_dates) == T, \
+    f"Số ngày không khớp: parquet={len(unique_dates)}, tensor={T}"
+
+unique_dates_ts = pd.DatetimeIndex(unique_dates)
+train_end = int((unique_dates_ts <= TRAIN_END).sum())
+val_end   = int((unique_dates_ts <= VAL_END).sum())
 
 splits = {
     "train": (0,         train_end),
@@ -124,11 +137,10 @@ splits = {
 }
 
 for name, (s, e) in splits.items():
-    n_samples = e - s
-    print(f"  {name:5s}: ngày {s:4d}–{e:4d}  ({n_samples} ngày, "
-          f"{max(0, n_samples-7)} sequences)")
-
-
+    n_days = e - s
+    print(f"  {name:5s}: {str(unique_dates[s])[:10]} → "
+          f"{str(unique_dates[e-1])[:10]}  "
+          f"({n_days} ngày, {max(0, n_days-7)} sequences)")
 # ================================================================
 # BƯỚC 5: NORMALIZE
 # Fit ONLY trên train, apply cho val và test
@@ -197,7 +209,7 @@ print(f"  Continuous feat mean (kỳ vọng ~0): {cont_sample.mean():.4f}")
 print(f"  Continuous feat std  (kỳ vọng ~1): {cont_sample.std():.4f}")
 
 # 3. Kiểm tra binary features không bị normalize (vẫn là 0/1)
-binary_sample = X_train[:100, ..., 13]   # fire_lag_1
+binary_sample = X_train[:100, ..., 7]   # fire_lag_1
 uniq = np.unique(binary_sample)
 print(f"  fire_lag_1 unique values (kỳ vọng 0/1): {uniq[:5]}")
 

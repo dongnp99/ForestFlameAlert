@@ -2,7 +2,7 @@ import pandas as pd
 
 # Load fire label (nhỏ → load 1 lần)
 fire = pd.read_csv(
-    "daklak_firms.csv",
+    "../raw_data/daklak_firms.csv",
     parse_dates=["date"]
 )
 
@@ -13,13 +13,13 @@ fire_key = set(zip(fire.grid_id, fire.date))
 
 chunksize = 500_000  # có thể tăng/giảm tùy RAM
 
-out_file = "daklak_era5_firms.csv"
+out_file = "../daklak_era5_firms.csv"
 first = True
 
 print(f"Processing...")
 
 for chunk in pd.read_csv(
-    "daklak_era5.csv",
+        "../raw_data/daklak_era5.csv",
     chunksize=chunksize,
     parse_dates=["date"]
 ):

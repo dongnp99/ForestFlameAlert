@@ -9,7 +9,7 @@ DEFAULT_CFG = {
     "seq_len":  7,
     "H":        137,
     "W":        138,
-    "n_feat":   25,
+    "n_feat":   16,
     "filters":  [64, 32],
     "kernel":   3,
     "dropout":  0.3,
@@ -172,9 +172,10 @@ class FocalLoss(nn.Module):
         bce = -(self.pos_weight * target * torch.log(pred) +
                 (1 - target) * torch.log(1 - pred))
 
-        p_t    = target * pred + (1 - target) * (1 - pred)
-        weight = self.alpha * (1 - p_t) ** self.gamma
-        loss   = weight * bce
+        p_t     = target * pred + (1 - target) * (1 - pred)
+        alpha_t = target * self.alpha + (1 - target) * (1 - self.alpha)
+        weight  = alpha_t * (1 - p_t) ** self.gamma
+        loss    = weight * bce
         return loss.mean()
 
 
@@ -221,7 +222,10 @@ class ConvLSTMWildfire(nn.Module):
         )
         self.bn2      = nn.BatchNorm2d(filters[1])
         self.drop2    = nn.Dropout2d(drop)   # SpatialDropout trên 2D
-
+        self.attention = nn.Sequential(
+            nn.Conv2d(filters[1], 1, kernel_size=1),
+            nn.Sigmoid()
+        )
         # ── Decoder ──────────────────────────────────────────────
         self.decoder = nn.Sequential(
             nn.Conv2d(filters[1], 32, kernel_size=3, padding=2, dilation=2),
@@ -255,8 +259,11 @@ class ConvLSTMWildfire(nn.Module):
         x = self.bn2(x)
         x = self.drop2(x)
 
-        # Decoder
-        out = self.decoder(x)           # (B, 1, H, W)
+        attn = self.attention(x)  # (B, 1, H, W)
+        x = x * attn  # (B, 32, H, W) — scale từng pixel theo độ quan trọng
+
+        # Decoder giữ nguyên, không đổi
+        out = self.decoder(x)         # (B, 1, H, W)
         return out
 
 
@@ -287,9 +294,10 @@ def build_model(cfg: dict = None, pos_weight: float = 1.0):
         alpha      = c["fl_alpha"],
         pos_weight = pos_weight,    # truyền pos_weight vào loss
     )
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=c["lr"],
+        weight_decay=1e-4,
     )
 
     return model, criterion, optimizer
@@ -311,7 +319,7 @@ if __name__ == "__main__":
 
     # Forward pass với dummy input
     print("\nKiểm tra forward pass...")
-    dummy_x = torch.randn(2, 7, 25, 137, 138).to(device)
+    dummy_x = torch.randn(2, 7, 16, 137, 138).to(device)
     dummy_y = torch.randint(0, 2, (2, 1, 137, 138)).float().to(device)
 
     with torch.no_grad():

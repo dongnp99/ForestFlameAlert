@@ -3,15 +3,15 @@
 # =============================
 
 # DATA_PATH = "../data/Daklak/final_inputs/dataset_fire_final.csv"
-DATA_PATH = "../data/Daklak/final_inputs/daklak_fire_xgb_additional_features.parquet"
+DATA_PATH = "../data/Daklak/final_inputs/daklak_final_dataset.parquet"
 
 # =============================
 # TIME SPLIT
 # =============================
 
-TRAIN_END_DATE = "2020-12-31"
+TRAIN_END_DATE = "2021-12-31"
 VAL_END_DATE   = "2022-12-31"
-TEST_END_DATE  = "2023-12-31"
+TEST_END_DATE  = "2024-12-31"
 
 # =============================
 # MODEL SETTINGS
@@ -28,19 +28,11 @@ FEATURE_COLS = [
     "rain",
     "vpd",
 
-    # ===== Rolling mạnh =====
+    # ===== Rolling =====
     "rain_14d_sum",
     "rain_30d_sum",
     "vpd_14d_mean",
     "vpd_30d_mean",
-
-    # ===== Dryness =====
-    # "dryness_14d",
-    # "dryness_30d",
-    # "consecutive_dry_days",
-
-    # ===== Interaction =====
-    "wind_vpd",
 
     # ===== Lag quan trọng =====
     "fire_lag_1",
@@ -51,8 +43,6 @@ FEATURE_COLS = [
     "dem_stdev",
     "slp_mean",
     "slp_stdev",
-    "aspect_sin",
-    "aspect_cos",
 
     # ===== Seasonality =====
     "sin_doy",
@@ -64,5 +54,15 @@ FEATURE_COLS = [
     "neighbor_fire_3d",
     "neighbor_fire_7d",
     "vpd_neighbor_1d",
-    "vpd_fire_lag_1"
+    "vpd_fire_lag_1",
+
+    # ===== Vegetation (Sentinel-2) =====
+    "ndvi",
+    "ndvi_std",
+    "ndwi",
+    "nbr",
+    "ndii",
+    "delta_ndvi_14d",
+    "delta_nbr_7d",
+    "has_s2",
 ]

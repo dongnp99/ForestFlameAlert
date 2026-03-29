@@ -11,11 +11,9 @@ from config import (
 
 def main():
     print("Loading dataset...")
-    df = pd.read_parquet(RAW_DATA_PATH)
+    df = pd.read_parquet(RAW_DATA_PATH, columns=FEATURE_COLUMNS)
 
     print("Original shape:", df.shape)
-
-    df = df[FEATURE_COLUMNS]
 
     print("OK")
     df[DATE_COL] = pd.to_datetime(df[DATE_COL])
