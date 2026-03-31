@@ -1,69 +1,48 @@
-import datetime
 from pathlib import Path
 
 import folium
 import pandas as pd
 import streamlit as st
-import xgboost as xgb
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-BASE = Path(__file__).parent
-MODEL_PATH  = BASE / "Project/xgboost/models/xgb_fire_after_tuned.json"
-DATA_PATH   = BASE / "Project/data/Daklak/final_inputs/daklak_final_dataset.parquet"
-COORDS_PATH = BASE / "Project/data/Daklak/final_inputs/raw_data/daklak_grid_lon_lat.csv"
-
-FEATURE_COLS = [
-    "tmean", "rh", "wind", "rain", "vpd",
-    "rain_14d_sum", "rain_30d_sum", "vpd_14d_mean", "vpd_30d_mean",
-    "fire_lag_1", "fire_lag_3",
-    "dem_mean", "dem_stdev", "slp_mean", "slp_stdev",
-    "sin_doy", "cos_doy",
-    "neighbor_count", "neighbor_fire_1d", "neighbor_fire_3d", "neighbor_fire_7d",
-    "vpd_neighbor_1d", "vpd_fire_lag_1",
-    "ndvi", "ndvi_std", "ndwi", "nbr", "ndii", "delta_ndvi_14d", "delta_nbr_7d",
-    "has_s2",
-]
+BASE         = Path(__file__).parent
+PRED_PATH    = BASE / "app_predictions.parquet"
 
 HIGH_RISK_THRESHOLD = 0.5
-DAK_LAK_CENTER = [12.7, 108.0]
+DAK_LAK_CENTER      = [12.7, 108.0]
 
-
-# ── Data loading & prediction (cached) ────────────────────────────────────────
+# ── Load precomputed predictions ───────────────────────────────────────────────
 @st.cache_data
 def load_predictions() -> pd.DataFrame:
-    """Load 2023 test set, run XGBoost, join grid coordinates."""
-    df = pd.read_parquet(
-        DATA_PATH,
-        columns=["grid_id", "date"] + FEATURE_COLS + ["fire"],
-    )
+    df = pd.read_parquet(PRED_PATH)
     df["date"] = pd.to_datetime(df["date"])
-    df = df[(df["date"] >= "2023-01-01") & (df["date"] <= "2023-12-31")].copy()
-
-    model = xgb.XGBClassifier()
-    model.load_model(MODEL_PATH)
-    df["fire_prob"] = model.predict_proba(df[FEATURE_COLS])[:, 1]
-
-    coords = pd.read_csv(COORDS_PATH)
-    df = df.merge(coords, on="grid_id", how="left")
-
     return df
 
 
 # ── App layout ─────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="ForestFlameAlert", page_icon="🔥", layout="wide")
-st.title("🔥 ForestFlameAlert — Dak Lak Fire Probability (2023)")
+st.title("🔥 ForestFlameAlert — Dak Lak Fire Probability (2023–2024)")
 
-with st.spinner("Loading model and running predictions on 2023 test set…"):
-    pred_df = load_predictions()
+if not PRED_PATH.exists():
+    st.error(
+        f"Predictions file not found: `{PRED_PATH}`\n\n"
+        "Run `python precompute_predictions.py` first to generate it."
+    )
+    st.stop()
 
-# Date picker
+pred_df = load_predictions()
+
+min_date = pred_df["date"].min().date()
+max_date = pred_df["date"].max().date()
+
+# ── Controls ───────────────────────────────────────────────────────────────────
 selected_date = st.date_input(
     "Select date",
-    value=datetime.date(2023, 1, 1),
-    min_value=datetime.date(2023, 1, 1),
-    max_value=datetime.date(2023, 12, 31),
+    value=min_date,
+    min_value=min_date,
+    max_value=max_date,
 )
 
 day_df = pred_df[pred_df["date"] == pd.Timestamp(selected_date)]
@@ -109,9 +88,9 @@ folium.LayerControl(collapsed=False).add_to(m)
 st_folium(m, width="100%", height=600)
 
 # ── Summary stats ──────────────────────────────────────────────────────────────
-high_risk_count = int((day_df["fire_prob"] > HIGH_RISK_THRESHOLD).sum())
+high_risk_count   = int((day_df["fire_prob"] > HIGH_RISK_THRESHOLD).sum())
 actual_fire_count = int((day_df["fire"] == 1).sum())
-total_grids = len(day_df)
+total_grids       = len(day_df)
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Total grids", total_grids)

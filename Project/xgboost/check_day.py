@@ -6,11 +6,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from xgb_config import DATA_PATH, FEATURE_COLS
 
-MODEL_PATH = Path(__file__).parent / "models/xgb_fire_after_tuned.json"
+MODEL_PATH = Path(__file__).parent / "models/xgb_human_features_tuned_v4_pathways.json"
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 CHECK_DATE = "2023-01-14"   # <-- change this
-CHECK_GRID = 2460          # <-- change this
+CHECK_GRID = 31363          # <-- change this
 
 # ── Load ───────────────────────────────────────────────────────────────────────
 parquet_path = Path(__file__).parent.parent / DATA_PATH.lstrip("../")

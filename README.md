@@ -1,0 +1,19 @@
+- Tạo features đơn giản từ DEM, ERA5, MODIS
+- DEM: Tải dữ liệu, cắt chỉnh trong QGIS và xuất ra file shape cũng như chia grid
+- ERA5: Tải dữ liệu khí tượng, merge với grid đã chia từ DEM
+- MODIS: Lấy nhãn cháy theo grid
+- Merge các dữ liệu ban đầu => XGBoost train kết quả thấp
+- Cần tạo thêm các rolling feature và adjacent grid fire để tăng AUC PR
+- Thử nghiệm training ConvLSTM
+- Dùng dữ liệu final dataset của XGBoost để train
+- Kết quả không ổn lắm do lượng nhãn cháy ít nên chưa đủ để phát hiện sự lan truyền cháy hay tích lũy theo thời gian
+- Với dữ liệu cháy rải rác thì XGBoost vẫn ổn hơn
+- YOLO thì bí 
+- Thử thêm yếu tố thảm thực vật cho XGBoost lấy từ Google Earth Engine (GEE)
+- Dùng model validation để loại bỏ bớt các feature có ít contribute và thêm các feature mạnh hơn
+- Kết quả sau train với veg thì ổn hơn
+- Build thử lên app, thấy nhận diện cháy cũng tương đối ổn
+- Có nhiều điểm cháy xuất hiện lạ ở nơi được đánh giá prob thấp => Yếu tố con người
+- Thêm thử yếu tố con người vào model xem có ổn không
+- Thêm rồi và build ra app nhưng vẫn chưa bắt được một số trường hợp cháy bất thường do con người
+- Thử nghiệm kết hợp weight của các yếu tố con người

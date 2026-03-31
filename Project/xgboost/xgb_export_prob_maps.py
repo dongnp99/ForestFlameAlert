@@ -9,6 +9,8 @@ Fix OOM: đọc từng DATE_CHUNK ngày một thay vì load cả split.
 
 import gc
 import logging
+import os
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import xgboost as xgb
@@ -21,7 +23,7 @@ import xgb_config
 # CONFIG
 # =============================
 
-MODEL_PATH = "models/xgb_fire_after_tuned.json"
+MODEL_PATH = "models/v3/xgb_human_features_tuned_v4_pathways.json"
 OUTPUT_DIR = Path("models/prob_maps")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -32,9 +34,15 @@ DATE_CHUNK = 30
 # LOGGING
 # =============================
 
+os.makedirs("logs", exist_ok=True)
+_log_file = f"logs/xgb_export_prob_maps_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(_log_file),
+    ],
 )
 
 # =============================
@@ -94,37 +102,38 @@ def predict_and_save(split_name: str, filters: list):
             ("date", "<=", date_end),
         ]
 
+        # Load only the columns we actually need — avoids reading unused cols
         chunk_df = pd.read_parquet(
             xgb_config.DATA_PATH,
+            columns=xgb_config.FEATURE_COLS + ["fire", "date", "grid_id"],
             filters=chunk_filters,
             engine="pyarrow",
         )
 
-        # Cast types
-        chunk_df["fire"] = chunk_df["fire"].astype("int8")
-        if "neighbor_count" in chunk_df.columns:
-            chunk_df["neighbor_count"] = chunk_df["neighbor_count"].astype("int8")
+        # Cast types in-place
         for col in xgb_config.FEATURE_COLS:
             if col in chunk_df.columns:
                 chunk_df[col] = chunk_df[col].astype("float32")
 
-        # Sort trong chunk
-        chunk_df = chunk_df.sort_values(["date", "grid_id"])
+        # Sort in-place — avoids creating a sorted copy of the chunk
+        chunk_df.sort_values(["date", "grid_id"], inplace=True)
 
-        # Lưu meta
+        # Save meta (cheap — numpy views of the sorted columns)
         all_dates_meta.append(chunk_df["date"].to_numpy())
         all_gridids_meta.append(chunk_df["grid_id"].to_numpy())
+        del chunk_df["date"], chunk_df["grid_id"]
 
-        # Inference
-        X     = chunk_df[xgb_config.FEATURE_COLS]
-        y     = chunk_df["fire"].to_numpy(dtype=np.float32)
-        dmat  = xgb.DMatrix(X)
+        # pop("fire") removes label column in-place → chunk_df == FEATURE_COLS only
+        y = chunk_df.pop("fire").to_numpy(dtype=np.float32)
+
+        # Pass chunk_df directly — no X copy needed
+        dmat  = xgb.DMatrix(chunk_df)
         probs = model.predict(dmat).astype(np.float32)
 
         all_probs.append(probs)
         all_targets.append(y)
 
-        del chunk_df, X, dmat, probs, y
+        del chunk_df, dmat, probs, y
         gc.collect()
 
         if (chunk_idx + 1) % 10 == 0 or chunk_idx == n_chunks - 1:
@@ -205,3 +214,4 @@ logging.info("Files ready for fusion:")
 for name in splits:
     logging.info("  xgb_prob_map_%s.npy  /  xgb_targets_%s.npy  /  xgb_meta_%s.parquet",
                  name, name, name)
+logging.info("Log written to: %s", _log_file)

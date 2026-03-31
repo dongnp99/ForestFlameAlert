@@ -1,17 +1,25 @@
+import os
+import gc
+import logging
+from datetime import datetime
 import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import average_precision_score, roc_auc_score
 import xgb_config
-import gc
-import logging
 
 # =============================
 # LOGGING
 # =============================
 
+os.makedirs("logs", exist_ok=True)
+_log_file = f"logs/xgb_retrain_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(_log_file),
+    ],
 )
 
 logging.info("Loading data...")
@@ -33,32 +41,43 @@ def load_split(filters):
             df[col] = df[col].astype("float32")
     return df
 
-# Load one split at a time, extract X/y, then delete before loading the next
+# Load one split at a time, create DMatrix immediately, then delete before loading the next
 logging.info("Loading train set...")
 train_df = load_split([("date", "<=", pd.Timestamp(xgb_config.TRAIN_END_DATE))])
-logging.info("Train size: %s", len(train_df))
-X_train = train_df[xgb_config.FEATURE_COLS]
-y_train = train_df["fire"]
-logging.info("Train fire rate: %.6f", y_train.mean())
-del train_df
+logging.info("Train size: %s  |  fire rate: %.6f", len(train_df), train_df["fire"].mean())
+
+_p1 = (train_df["burn_season_flag"] == 1) & (train_df["days_since_harvest"] < 30)
+_p2 = (train_df["deforestation_lag_1y"] > 1.5) & (train_df["fire_count_prev_year"] > 0)
+_p3 = (train_df["fire_count_prev_year"] > 1) & (train_df["burn_season_flag"] == 1)
+human_fire_count = int(((train_df["fire"] == 1) & (_p1 | _p2 | _p3)).sum())
+logging.info("Human-fire samples upweighted: %d  (~44%% expected)", human_fire_count)
+
+logging.info("Creating dtrain QuantileDMatrix...")
+# Compute weights before pop("fire"); train_df is now FEATURE_COLS only after pop
+w_train = xgb_config.compute_sample_weights(train_df)
+y_train = train_df.pop("fire").values
+dtrain  = xgb.QuantileDMatrix(train_df, y_train, weight=w_train)
+del train_df, y_train, w_train
 gc.collect()
 
 logging.info("Loading val set...")
 val_df = load_split([
     ("date", ">",  pd.Timestamp(xgb_config.TRAIN_END_DATE)),
-    ("date", "<=", pd.Timestamp(xgb_config.VAL_END_DATE))
+    ("date", "<=", pd.Timestamp(xgb_config.VAL_END_DATE)),
 ])
 logging.info("Val size: %s", len(val_df))
-X_val = val_df[xgb_config.FEATURE_COLS]
-y_val = val_df["fire"]
+logging.info("Creating dval QuantileDMatrix...")
+y_val = val_df.pop("fire").values
+dval  = xgb.QuantileDMatrix(val_df, y_val, ref=dtrain)
 del val_df
 gc.collect()
 
 logging.info("Loading test set...")
 test_df = load_split([("date", ">", pd.Timestamp(xgb_config.VAL_END_DATE))])
 logging.info("Test size: %s", len(test_df))
-X_test = test_df[xgb_config.FEATURE_COLS]
-y_test = test_df["fire"]
+logging.info("Creating dtest QuantileDMatrix...")
+y_test = test_df.pop("fire").values
+dtest  = xgb.QuantileDMatrix(test_df, y_test, ref=dtrain)
 del test_df
 gc.collect()
 
@@ -67,34 +86,23 @@ gc.collect()
 # =============================
 
 best_params = {
-  "max_depth":        8,
-  "min_child_weight": 15,
-  "learning_rate":    0.06257960621774133,
-  "subsample":        0.8095304694689628,
-  "colsample_bytree": 0.6546065241548528,
-  "gamma":            0.7799726016810132,
-  "reg_lambda":       8.0,        # adjusted from 1.05 — TPE consensus
-  "reg_alpha":        4.330880728874676,
-  "scale_pos_weight": 828.4237170569176,
-  "objective":        "binary:logistic",
-  "eval_metric":      "aucpr",
-  "tree_method":      "hist",
-  "device":           "cuda",
-  "random_state":     42,
-  "max_bin":          256,
-  "grow_policy":      "lossguide"
+    "max_depth": 8,
+    "min_child_weight": 2,
+    "learning_rate": 0.05741824143332552,
+    "subsample": 0.7705102323506257,
+    "colsample_bytree": 0.6733292800810863,
+    "gamma": 4.661230074006847,
+    "reg_lambda": 4.471351286348217,
+    "reg_alpha": 4.631961421397106,
+    "scale_pos_weight": 638.4840070541702,
+    "objective":        "binary:logistic",
+    "eval_metric":      "aucpr",
+    "tree_method":      "hist",
+    "device":           "cuda",
+    "random_state":     42,
+    "max_bin":          256,
+    "grow_policy":      "lossguide"
 }
-
-
-# =============================
-# CREATE DMATRIX
-# =============================
-
-logging.info("Creating QuantileDMatrix...")
-
-dtrain = xgb.QuantileDMatrix(X_train, y_train)
-dval = xgb.QuantileDMatrix(X_val, y_val, ref=dtrain)
-dtest = xgb.QuantileDMatrix(X_test, y_test, ref=dtrain)
 
 # =============================
 # TRAIN FINAL MODEL
@@ -138,5 +146,6 @@ logging.info("===================================")
 # SAVE MODEL
 # =============================
 
-model.save_model("models/xgb_fire_after_tuned.json")
-logging.info("Model saved to models/xgb_fire_after_tuned.json")
+model.save_model("models/xgb_human_features_tuned_v4_pathways.json")
+logging.info("Model saved to models/xgb_human_features_tuned_v4_pathways.json")
+logging.info("Log written to: %s", _log_file)
