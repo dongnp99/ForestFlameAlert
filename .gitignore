@@ -29,3 +29,4 @@ replay_pid*
 *.nc
 *.tif
 *.npy
+*.pbf
