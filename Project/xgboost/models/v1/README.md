@@ -1,0 +1,1 @@
+(v1 logic) Model chưa có human feature

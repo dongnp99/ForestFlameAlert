@@ -1,0 +1,1 @@
+(v4 - current) Model khi sử dụng AND logic trong xgb_config khi tính weight cho human features

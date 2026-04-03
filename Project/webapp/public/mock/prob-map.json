@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.00,12.60],[108.05,12.60],[108.05,12.65],[108.00,12.65],[108.00,12.60]]] },
+      "properties": { "grid_id": "grid_001", "prob": 0.72, "prob_yesterday": 0.65, "dominant_factor": "Con người", "center_lat": 12.625, "center_lon": 108.025, "human_signals": { "burning_season": true, "fire_count_5yr": 6, "dist_road_km": 0.8, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Đôn (8km)" }, "weather_vals": { "tmean": 29.1, "rh": 42, "vpd": 2.3, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.1 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.05,12.60],[108.10,12.60],[108.10,12.65],[108.05,12.65],[108.05,12.60]]] },
+      "properties": { "grid_id": "grid_002", "prob": 0.45, "prob_yesterday": 0.48, "dominant_factor": "Thời tiết", "center_lat": 12.625, "center_lon": 108.075, "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 3.2, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Đôn (12km)" }, "weather_vals": { "tmean": 28.4, "rh": 48, "vpd": 1.9, "rain_14d_sum": 2.5, "vpd_14d_mean": 1.7 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.10,12.60],[108.15,12.60],[108.15,12.65],[108.10,12.65],[108.10,12.60]]] },
+      "properties": { "grid_id": "grid_003", "prob": 0.28, "prob_yesterday": 0.31, "dominant_factor": "Thực vật", "center_lat": 12.625, "center_lon": 108.125, "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 5.5, "land_use": "Rừng phòng hộ", "nearest_settlement": "Krông Ana (18km)" }, "weather_vals": { "tmean": 27.8, "rh": 52, "vpd": 1.6, "rain_14d_sum": 5.0, "vpd_14d_mean": 1.4 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.15,12.60],[108.20,12.60],[108.20,12.65],[108.15,12.65],[108.15,12.60]]] },
+      "properties": { "grid_id": "grid_004", "prob": 0.15, "prob_yesterday": 0.14, "dominant_factor": "Địa hình", "center_lat": 12.625, "center_lon": 108.175, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 8.1, "land_use": "Đất nông nghiệp", "nearest_settlement": "Krông Ana (22km)" }, "weather_vals": { "tmean": 27.2, "rh": 58, "vpd": 1.3, "rain_14d_sum": 8.0, "vpd_14d_mean": 1.1 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.20,12.60],[108.25,12.60],[108.25,12.65],[108.20,12.65],[108.20,12.60]]] },
+      "properties": { "grid_id": "grid_005", "prob": 0.08, "prob_yesterday": 0.09, "dominant_factor": "Địa hình", "center_lat": 12.625, "center_lon": 108.225, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 12.3, "land_use": "Đất trống", "nearest_settlement": "Krông Ana (28km)" }, "weather_vals": { "tmean": 26.9, "rh": 62, "vpd": 1.1, "rain_14d_sum": 10.0, "vpd_14d_mean": 0.9 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.00,12.65],[108.05,12.65],[108.05,12.70],[108.00,12.70],[108.00,12.65]]] },
+      "properties": { "grid_id": "grid_006", "prob": 0.65, "prob_yesterday": 0.59, "dominant_factor": "Con người", "center_lat": 12.675, "center_lon": 108.025, "human_signals": { "burning_season": true, "fire_count_5yr": 5, "dist_road_km": 1.5, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (15km)" }, "weather_vals": { "tmean": 28.9, "rh": 44, "vpd": 2.2, "rain_14d_sum": 0.5, "vpd_14d_mean": 2.0 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.05,12.65],[108.10,12.65],[108.10,12.70],[108.05,12.70],[108.05,12.65]]] },
+      "properties": { "grid_id": "grid_007", "prob": 0.82, "prob_yesterday": 0.77, "dominant_factor": "Lịch sử cháy", "center_lat": 12.675, "center_lon": 108.075, "human_signals": { "burning_season": true, "fire_count_5yr": 9, "dist_road_km": 0.5, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (9km)" }, "weather_vals": { "tmean": 30.2, "rh": 38, "vpd": 2.7, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.5 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.10,12.65],[108.15,12.65],[108.15,12.70],[108.10,12.70],[108.10,12.65]]] },
+      "properties": { "grid_id": "grid_008", "prob": 0.55, "prob_yesterday": 0.52, "dominant_factor": "Thời tiết", "center_lat": 12.675, "center_lon": 108.125, "human_signals": { "burning_season": true, "fire_count_5yr": 3, "dist_road_km": 2.8, "land_use": "Rừng hỗn giao", "nearest_settlement": "Buôn Ma Thuột (11km)" }, "weather_vals": { "tmean": 29.5, "rh": 41, "vpd": 2.4, "rain_14d_sum": 1.0, "vpd_14d_mean": 2.2 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.15,12.65],[108.20,12.65],[108.20,12.70],[108.15,12.70],[108.15,12.65]]] },
+      "properties": { "grid_id": "grid_009", "prob": 0.38, "prob_yesterday": 0.40, "dominant_factor": "Thực vật", "center_lat": 12.675, "center_lon": 108.175, "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 4.1, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Ma Thuột (14km)" }, "weather_vals": { "tmean": 28.1, "rh": 50, "vpd": 1.8, "rain_14d_sum": 3.0, "vpd_14d_mean": 1.6 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.20,12.65],[108.25,12.65],[108.25,12.70],[108.20,12.70],[108.20,12.65]]] },
+      "properties": { "grid_id": "grid_010", "prob": 0.12, "prob_yesterday": 0.11, "dominant_factor": "Địa hình", "center_lat": 12.675, "center_lon": 108.225, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 9.7, "land_use": "Đất nông nghiệp", "nearest_settlement": "Buôn Ma Thuột (19km)" }, "weather_vals": { "tmean": 27.0, "rh": 60, "vpd": 1.2, "rain_14d_sum": 9.5, "vpd_14d_mean": 1.0 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.00,12.70],[108.05,12.70],[108.05,12.75],[108.00,12.75],[108.00,12.70]]] },
+      "properties": { "grid_id": "grid_011", "prob": 0.91, "prob_yesterday": 0.85, "dominant_factor": "Con người", "center_lat": 12.725, "center_lon": 108.025, "human_signals": { "burning_season": true, "fire_count_5yr": 12, "dist_road_km": 0.3, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (6km)" }, "weather_vals": { "tmean": 31.5, "rh": 35, "vpd": 3.1, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.9 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.05,12.70],[108.10,12.70],[108.10,12.75],[108.05,12.75],[108.05,12.70]]] },
+      "properties": { "grid_id": "grid_012", "prob": 0.68, "prob_yesterday": 0.64, "dominant_factor": "Lịch sử cháy", "center_lat": 12.725, "center_lon": 108.075, "human_signals": { "burning_season": true, "fire_count_5yr": 7, "dist_road_km": 1.1, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (7km)" }, "weather_vals": { "tmean": 30.8, "rh": 37, "vpd": 2.9, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.7 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.10,12.70],[108.15,12.70],[108.15,12.75],[108.10,12.75],[108.10,12.70]]] },
+      "properties": { "grid_id": "grid_013", "prob": 0.42, "prob_yesterday": 0.39, "dominant_factor": "Thời tiết", "center_lat": 12.725, "center_lon": 108.125, "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 3.5, "land_use": "Rừng hỗn giao", "nearest_settlement": "Buôn Ma Thuột (10km)" }, "weather_vals": { "tmean": 29.0, "rh": 46, "vpd": 2.0, "rain_14d_sum": 2.0, "vpd_14d_mean": 1.8 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.15,12.70],[108.20,12.70],[108.20,12.75],[108.15,12.75],[108.15,12.70]]] },
+      "properties": { "grid_id": "grid_014", "prob": 0.31, "prob_yesterday": 0.28, "dominant_factor": "Thực vật", "center_lat": 12.725, "center_lon": 108.175, "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 6.2, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Ma Thuột (13km)" }, "weather_vals": { "tmean": 28.3, "rh": 53, "vpd": 1.7, "rain_14d_sum": 4.0, "vpd_14d_mean": 1.5 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.20,12.70],[108.25,12.70],[108.25,12.75],[108.20,12.75],[108.20,12.70]]] },
+      "properties": { "grid_id": "grid_015", "prob": 0.18, "prob_yesterday": 0.19, "dominant_factor": "Địa hình", "center_lat": 12.725, "center_lon": 108.225, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 10.5, "land_use": "Đất nông nghiệp", "nearest_settlement": "Ea Kar (21km)" }, "weather_vals": { "tmean": 27.5, "rh": 57, "vpd": 1.4, "rain_14d_sum": 7.0, "vpd_14d_mean": 1.2 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.00,12.75],[108.05,12.75],[108.05,12.80],[108.00,12.80],[108.00,12.75]]] },
+      "properties": { "grid_id": "grid_016", "prob": 0.76, "prob_yesterday": 0.70, "dominant_factor": "Con người", "center_lat": 12.775, "center_lon": 108.025, "human_signals": { "burning_season": true, "fire_count_5yr": 8, "dist_road_km": 0.7, "land_use": "Rừng sản xuất", "nearest_settlement": "Ea Súp (10km)" }, "weather_vals": { "tmean": 30.5, "rh": 39, "vpd": 2.8, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.6 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.05,12.75],[108.10,12.75],[108.10,12.80],[108.05,12.80],[108.05,12.75]]] },
+      "properties": { "grid_id": "grid_017", "prob": 0.53, "prob_yesterday": 0.50, "dominant_factor": "Thời tiết", "center_lat": 12.775, "center_lon": 108.075, "human_signals": { "burning_season": true, "fire_count_5yr": 4, "dist_road_km": 2.3, "land_use": "Rừng hỗn giao", "nearest_settlement": "Ea Súp (14km)" }, "weather_vals": { "tmean": 29.7, "rh": 43, "vpd": 2.3, "rain_14d_sum": 1.5, "vpd_14d_mean": 2.1 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.10,12.75],[108.15,12.75],[108.15,12.80],[108.10,12.80],[108.10,12.75]]] },
+      "properties": { "grid_id": "grid_018", "prob": 0.25, "prob_yesterday": 0.23, "dominant_factor": "Thực vật", "center_lat": 12.775, "center_lon": 108.125, "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 7.0, "land_use": "Rừng phòng hộ", "nearest_settlement": "Ea Súp (18km)" }, "weather_vals": { "tmean": 28.0, "rh": 54, "vpd": 1.6, "rain_14d_sum": 5.5, "vpd_14d_mean": 1.4 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.15,12.75],[108.20,12.75],[108.20,12.80],[108.15,12.80],[108.15,12.75]]] },
+      "properties": { "grid_id": "grid_019", "prob": 0.14, "prob_yesterday": 0.15, "dominant_factor": "Địa hình", "center_lat": 12.775, "center_lon": 108.175, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 11.8, "land_use": "Đất trống", "nearest_settlement": "Ea Súp (24km)" }, "weather_vals": { "tmean": 27.1, "rh": 61, "vpd": 1.2, "rain_14d_sum": 8.5, "vpd_14d_mean": 1.0 } }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[108.20,12.75],[108.25,12.75],[108.25,12.80],[108.20,12.80],[108.20,12.75]]] },
+      "properties": { "grid_id": "grid_020", "prob": 0.07, "prob_yesterday": 0.08, "dominant_factor": "Địa hình", "center_lat": 12.775, "center_lon": 108.225, "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 15.2, "land_use": "Đất trống", "nearest_settlement": "Ea Súp (30km)" }, "weather_vals": { "tmean": 26.8, "rh": 65, "vpd": 1.0, "rain_14d_sum": 11.0, "vpd_14d_mean": 0.8 } }
+    }
+  ]
+}

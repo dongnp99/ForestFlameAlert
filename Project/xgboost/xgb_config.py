@@ -78,6 +78,25 @@ def compute_sample_weights(df):
     weights[fire] = weights_map[score[fire]]
     return weights
 
+def compute_dominant_factor(df) -> "pd.Series":
+    """Return a binary dominant-factor label per row: 'Con người' or 'Tự nhiên'.
+
+    Uses the same three pathway conditions as compute_sample_weights so that
+    the training bias and the attribution label are coherent by design.
+    A row is 'Con người' if it matches ANY pathway; otherwise 'Tự nhiên'.
+    """
+    p1 = (df["burn_season_flag"] == 1) & (df["days_since_harvest"] < 30)
+    p2 = (df["deforestation_lag_1y"] > 1.5) & (df["fire_count_prev_year"] > 0)
+    p3 = (df["fire_count_prev_year"] > 1)   & (df["burn_season_flag"] == 1)
+    human = p1 | p2 | p3
+    import pandas as pd
+    return pd.Series(
+        np.where(human.values, "Con người", "Tự nhiên"),
+        index=df.index,
+        dtype="category",
+    )
+
+
 FEATURE_COLS = [
 
     # ===== Weather hiện tại =====

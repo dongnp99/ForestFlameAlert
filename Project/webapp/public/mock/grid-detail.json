@@ -1,0 +1,371 @@
+{
+  "grid_001": {
+    "grid_id": "grid_001", "prob": 0.72, "prob_yesterday": 0.65, "dominant_factor": "Con người",
+    "center_lat": 12.625, "center_lon": 108.025,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 6, "dist_road_km": 0.8, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Đôn (8km)" },
+    "weather_vals": { "tmean": 29.1, "rh": 42, "vpd": 2.3, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.1 },
+    "shap_values": { "human_activity": 38, "weather": 27, "fire_history": 18, "vegetation": 11, "terrain": 6 },
+    "fire_events_12m": [
+      { "date": "2026-01-15", "prob": 0.68, "analyzed_cause": "Đốt rẫy chuẩn bị mùa vụ", "responded": true },
+      { "date": "2025-12-28", "prob": 0.71, "analyzed_cause": "Nhiệt độ cao, độ ẩm thấp", "responded": true },
+      { "date": "2025-11-10", "prob": 0.62, "analyzed_cause": "Hoạt động canh tác gần rừng", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_006", "prob": 0.65, "delta": -0.07, "dominant_factor": "Con người" },
+      { "grid_id": "grid_002", "prob": 0.45, "delta": -0.27, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.10, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.19, "dominant_factor": "Con người" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": -0.04, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": -0.44, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": -0.17, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.30, "dominant_factor": "Thời tiết" }
+    ]
+  },
+  "grid_002": {
+    "grid_id": "grid_002", "prob": 0.45, "prob_yesterday": 0.48, "dominant_factor": "Thời tiết",
+    "center_lat": 12.625, "center_lon": 108.075,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 3.2, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Đôn (12km)" },
+    "weather_vals": { "tmean": 28.4, "rh": 48, "vpd": 1.9, "rain_14d_sum": 2.5, "vpd_14d_mean": 1.7 },
+    "shap_values": { "human_activity": 18, "weather": 42, "fire_history": 15, "vegetation": 16, "terrain": 9 },
+    "fire_events_12m": [
+      { "date": "2025-12-05", "prob": 0.48, "analyzed_cause": "Khô hạn kéo dài", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_001", "prob": 0.72, "delta": 0.27, "dominant_factor": "Con người" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": -0.17, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_006", "prob": 0.65, "delta": 0.20, "dominant_factor": "Con người" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.37, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.10, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.23, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.03, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_004", "prob": 0.15, "delta": -0.30, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_003": {
+    "grid_id": "grid_003", "prob": 0.28, "prob_yesterday": 0.31, "dominant_factor": "Thực vật",
+    "center_lat": 12.625, "center_lon": 108.125,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 5.5, "land_use": "Rừng phòng hộ", "nearest_settlement": "Krông Ana (18km)" },
+    "weather_vals": { "tmean": 27.8, "rh": 52, "vpd": 1.6, "rain_14d_sum": 5.0, "vpd_14d_mean": 1.4 },
+    "shap_values": { "human_activity": 10, "weather": 30, "fire_history": 8, "vegetation": 38, "terrain": 14 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_002", "prob": 0.45, "delta": 0.17, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_004", "prob": 0.15, "delta": -0.13, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.54, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.27, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.10, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.14, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.03, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_005", "prob": 0.08, "delta": -0.20, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_004": {
+    "grid_id": "grid_004", "prob": 0.15, "prob_yesterday": 0.14, "dominant_factor": "Địa hình",
+    "center_lat": 12.625, "center_lon": 108.175,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 8.1, "land_use": "Đất nông nghiệp", "nearest_settlement": "Krông Ana (22km)" },
+    "weather_vals": { "tmean": 27.2, "rh": 58, "vpd": 1.3, "rain_14d_sum": 8.0, "vpd_14d_mean": 1.1 },
+    "shap_values": { "human_activity": 8, "weather": 22, "fire_history": 5, "vegetation": 20, "terrain": 45 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_003", "prob": 0.28, "delta": 0.13, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_005", "prob": 0.08, "delta": -0.07, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.40, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.23, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_010", "prob": 0.12, "delta": -0.03, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.27, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.16, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": 0.03, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_005": {
+    "grid_id": "grid_005", "prob": 0.08, "prob_yesterday": 0.09, "dominant_factor": "Địa hình",
+    "center_lat": 12.625, "center_lon": 108.225,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 12.3, "land_use": "Đất trống", "nearest_settlement": "Krông Ana (28km)" },
+    "weather_vals": { "tmean": 26.9, "rh": 62, "vpd": 1.1, "rain_14d_sum": 10.0, "vpd_14d_mean": 0.9 },
+    "shap_values": { "human_activity": 5, "weather": 18, "fire_history": 2, "vegetation": 15, "terrain": 60 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_004", "prob": 0.15, "delta": 0.07, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.30, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_010", "prob": 0.12, "delta": 0.04, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.23, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": 0.10, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": 0.20, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_006": {
+    "grid_id": "grid_006", "prob": 0.65, "prob_yesterday": 0.59, "dominant_factor": "Con người",
+    "center_lat": 12.675, "center_lon": 108.025,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 5, "dist_road_km": 1.5, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (15km)" },
+    "weather_vals": { "tmean": 28.9, "rh": 44, "vpd": 2.2, "rain_14d_sum": 0.5, "vpd_14d_mean": 2.0 },
+    "shap_values": { "human_activity": 35, "weather": 30, "fire_history": 16, "vegetation": 12, "terrain": 7 },
+    "fire_events_12m": [
+      { "date": "2026-02-02", "prob": 0.62, "analyzed_cause": "Đốt rẫy không kiểm soát", "responded": true },
+      { "date": "2025-11-20", "prob": 0.58, "analyzed_cause": "Nhiệt độ cao, gió mạnh", "responded": true }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.26, "dominant_factor": "Con người" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.17, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_001", "prob": 0.72, "delta": 0.07, "dominant_factor": "Con người" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.03, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_016", "prob": 0.76, "delta": 0.11, "dominant_factor": "Con người" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": -0.10, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_002", "prob": 0.45, "delta": -0.20, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": -0.12, "dominant_factor": "Thời tiết" }
+    ]
+  },
+  "grid_007": {
+    "grid_id": "grid_007", "prob": 0.82, "prob_yesterday": 0.77, "dominant_factor": "Lịch sử cháy",
+    "center_lat": 12.675, "center_lon": 108.075,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 9, "dist_road_km": 0.5, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (9km)" },
+    "weather_vals": { "tmean": 30.2, "rh": 38, "vpd": 2.7, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.5 },
+    "shap_values": { "human_activity": 28, "weather": 24, "fire_history": 32, "vegetation": 10, "terrain": 6 },
+    "fire_events_12m": [
+      { "date": "2026-02-10", "prob": 0.79, "analyzed_cause": "Tái cháy vùng lịch sử", "responded": true },
+      { "date": "2026-01-05", "prob": 0.74, "analyzed_cause": "Đốt rẫy lan rộng", "responded": true },
+      { "date": "2025-12-18", "prob": 0.80, "analyzed_cause": "Khô hạn cực đoan + lịch sử cháy", "responded": false },
+      { "date": "2025-11-30", "prob": 0.69, "analyzed_cause": "Nhiệt độ cao bất thường", "responded": true }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.09, "dominant_factor": "Con người" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": -0.14, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_001", "prob": 0.72, "delta": -0.10, "dominant_factor": "Con người" },
+      { "grid_id": "grid_006", "prob": 0.65, "delta": -0.17, "dominant_factor": "Con người" },
+      { "grid_id": "grid_016", "prob": 0.76, "delta": -0.06, "dominant_factor": "Con người" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": -0.27, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_002", "prob": 0.45, "delta": -0.37, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.40, "dominant_factor": "Thời tiết" }
+    ]
+  },
+  "grid_008": {
+    "grid_id": "grid_008", "prob": 0.55, "prob_yesterday": 0.52, "dominant_factor": "Thời tiết",
+    "center_lat": 12.675, "center_lon": 108.125,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 3, "dist_road_km": 2.8, "land_use": "Rừng hỗn giao", "nearest_settlement": "Buôn Ma Thuột (11km)" },
+    "weather_vals": { "tmean": 29.5, "rh": 41, "vpd": 2.4, "rain_14d_sum": 1.0, "vpd_14d_mean": 2.2 },
+    "shap_values": { "human_activity": 20, "weather": 40, "fire_history": 14, "vegetation": 16, "terrain": 10 },
+    "fire_events_12m": [
+      { "date": "2025-12-22", "prob": 0.53, "analyzed_cause": "VPD cao + thiếu mưa", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.27, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.13, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.13, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_002", "prob": 0.45, "delta": -0.10, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": -0.17, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": -0.02, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": -0.27, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": -0.24, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_009": {
+    "grid_id": "grid_009", "prob": 0.38, "prob_yesterday": 0.40, "dominant_factor": "Thực vật",
+    "center_lat": 12.675, "center_lon": 108.175,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 4.1, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Ma Thuột (14km)" },
+    "weather_vals": { "tmean": 28.1, "rh": 50, "vpd": 1.8, "rain_14d_sum": 3.0, "vpd_14d_mean": 1.6 },
+    "shap_values": { "human_activity": 12, "weather": 28, "fire_history": 10, "vegetation": 36, "terrain": 14 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.17, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.04, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": -0.07, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_004", "prob": 0.15, "delta": -0.23, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_010", "prob": 0.12, "delta": -0.26, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": -0.20, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": -0.10, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_010": {
+    "grid_id": "grid_010", "prob": 0.12, "prob_yesterday": 0.11, "dominant_factor": "Địa hình",
+    "center_lat": 12.675, "center_lon": 108.225,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 9.7, "land_use": "Đất nông nghiệp", "nearest_settlement": "Buôn Ma Thuột (19km)" },
+    "weather_vals": { "tmean": 27.0, "rh": 60, "vpd": 1.2, "rain_14d_sum": 9.5, "vpd_14d_mean": 1.0 },
+    "shap_values": { "human_activity": 5, "weather": 20, "fire_history": 3, "vegetation": 22, "terrain": 50 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.26, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_005", "prob": 0.08, "delta": -0.04, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.19, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": 0.06, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_011": {
+    "grid_id": "grid_011", "prob": 0.91, "prob_yesterday": 0.85, "dominant_factor": "Con người",
+    "center_lat": 12.725, "center_lon": 108.025,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 12, "dist_road_km": 0.3, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (6km)" },
+    "weather_vals": { "tmean": 31.5, "rh": 35, "vpd": 3.1, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.9 },
+    "shap_values": { "human_activity": 42, "weather": 26, "fire_history": 20, "vegetation": 8, "terrain": 4 },
+    "fire_events_12m": [
+      { "date": "2026-03-10", "prob": 0.89, "analyzed_cause": "Đốt rẫy diện rộng mùa khô", "responded": false },
+      { "date": "2026-02-15", "prob": 0.86, "analyzed_cause": "Tái cháy + gió mạnh", "responded": true },
+      { "date": "2026-01-28", "prob": 0.82, "analyzed_cause": "Đốt rẫy lan sang rừng", "responded": true },
+      { "date": "2025-12-20", "prob": 0.78, "analyzed_cause": "VPD cao nhất năm + đốt rẫy", "responded": true },
+      { "date": "2025-11-05", "prob": 0.70, "analyzed_cause": "Nhiệt độ bất thường + khô hạn", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_016", "prob": 0.76, "delta": -0.15, "dominant_factor": "Con người" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": -0.09, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": -0.23, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_006", "prob": 0.65, "delta": -0.26, "dominant_factor": "Con người" },
+      { "grid_id": "grid_001", "prob": 0.72, "delta": -0.19, "dominant_factor": "Con người" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": -0.38, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.49, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_002", "prob": 0.45, "delta": -0.46, "dominant_factor": "Thời tiết" }
+    ]
+  },
+  "grid_012": {
+    "grid_id": "grid_012", "prob": 0.68, "prob_yesterday": 0.64, "dominant_factor": "Lịch sử cháy",
+    "center_lat": 12.725, "center_lon": 108.075,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 7, "dist_road_km": 1.1, "land_use": "Rừng sản xuất", "nearest_settlement": "Buôn Ma Thuột (7km)" },
+    "weather_vals": { "tmean": 30.8, "rh": 37, "vpd": 2.9, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.7 },
+    "shap_values": { "human_activity": 25, "weather": 22, "fire_history": 35, "vegetation": 12, "terrain": 6 },
+    "fire_events_12m": [
+      { "date": "2026-01-18", "prob": 0.65, "analyzed_cause": "Lịch sử cháy + mùa khô", "responded": true },
+      { "date": "2025-12-30", "prob": 0.70, "analyzed_cause": "Tái cháy vùng nguy hiểm", "responded": true }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.23, "dominant_factor": "Con người" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.14, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_016", "prob": 0.76, "delta": 0.08, "dominant_factor": "Con người" },
+      { "grid_id": "grid_006", "prob": 0.65, "delta": -0.03, "dominant_factor": "Con người" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": -0.15, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_001", "prob": 0.72, "delta": 0.04, "dominant_factor": "Con người" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": -0.13, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.26, "dominant_factor": "Thời tiết" }
+    ]
+  },
+  "grid_013": {
+    "grid_id": "grid_013", "prob": 0.42, "prob_yesterday": 0.39, "dominant_factor": "Thời tiết",
+    "center_lat": 12.725, "center_lon": 108.125,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 2, "dist_road_km": 3.5, "land_use": "Rừng hỗn giao", "nearest_settlement": "Buôn Ma Thuột (10km)" },
+    "weather_vals": { "tmean": 29.0, "rh": 46, "vpd": 2.0, "rain_14d_sum": 2.0, "vpd_14d_mean": 1.8 },
+    "shap_values": { "human_activity": 15, "weather": 38, "fire_history": 12, "vegetation": 22, "terrain": 13 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.26, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.40, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.13, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": 0.11, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_018", "prob": 0.25, "delta": -0.17, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": -0.04, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": -0.11, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_003", "prob": 0.28, "delta": -0.14, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_014": {
+    "grid_id": "grid_014", "prob": 0.31, "prob_yesterday": 0.28, "dominant_factor": "Thực vật",
+    "center_lat": 12.725, "center_lon": 108.175,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 6.2, "land_use": "Rừng tự nhiên", "nearest_settlement": "Buôn Ma Thuột (13km)" },
+    "weather_vals": { "tmean": 28.3, "rh": 53, "vpd": 1.7, "rain_14d_sum": 4.0, "vpd_14d_mean": 1.5 },
+    "shap_values": { "human_activity": 9, "weather": 25, "fire_history": 8, "vegetation": 42, "terrain": 16 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.11, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.24, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.07, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_018", "prob": 0.25, "delta": -0.06, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_019", "prob": 0.14, "delta": -0.17, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": -0.13, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_004", "prob": 0.15, "delta": -0.16, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_015": {
+    "grid_id": "grid_015", "prob": 0.18, "prob_yesterday": 0.19, "dominant_factor": "Địa hình",
+    "center_lat": 12.725, "center_lon": 108.225,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 10.5, "land_use": "Đất nông nghiệp", "nearest_settlement": "Ea Kar (21km)" },
+    "weather_vals": { "tmean": 27.5, "rh": 57, "vpd": 1.4, "rain_14d_sum": 7.0, "vpd_14d_mean": 1.2 },
+    "shap_values": { "human_activity": 6, "weather": 20, "fire_history": 4, "vegetation": 18, "terrain": 52 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.13, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.20, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_010", "prob": 0.12, "delta": -0.06, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_019", "prob": 0.14, "delta": -0.04, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_020", "prob": 0.07, "delta": -0.11, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_016": {
+    "grid_id": "grid_016", "prob": 0.76, "prob_yesterday": 0.70, "dominant_factor": "Con người",
+    "center_lat": 12.775, "center_lon": 108.025,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 8, "dist_road_km": 0.7, "land_use": "Rừng sản xuất", "nearest_settlement": "Ea Súp (10km)" },
+    "weather_vals": { "tmean": 30.5, "rh": 39, "vpd": 2.8, "rain_14d_sum": 0.0, "vpd_14d_mean": 2.6 },
+    "shap_values": { "human_activity": 40, "weather": 25, "fire_history": 19, "vegetation": 10, "terrain": 6 },
+    "fire_events_12m": [
+      { "date": "2026-02-20", "prob": 0.74, "analyzed_cause": "Đốt nương rẫy mùa khô", "responded": true },
+      { "date": "2026-01-10", "prob": 0.70, "analyzed_cause": "Cháy lan từ nương rẫy", "responded": true },
+      { "date": "2025-12-15", "prob": 0.72, "analyzed_cause": "Khô hạn + hoạt động con người", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.15, "dominant_factor": "Con người" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": -0.08, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.06, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_006", "prob": 0.65, "delta": -0.11, "dominant_factor": "Con người" },
+      { "grid_id": "grid_017", "prob": 0.53, "delta": -0.23, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.34, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_001", "prob": 0.72, "delta": -0.04, "dominant_factor": "Con người" }
+    ]
+  },
+  "grid_017": {
+    "grid_id": "grid_017", "prob": 0.53, "prob_yesterday": 0.50, "dominant_factor": "Thời tiết",
+    "center_lat": 12.775, "center_lon": 108.075,
+    "human_signals": { "burning_season": true, "fire_count_5yr": 4, "dist_road_km": 2.3, "land_use": "Rừng hỗn giao", "nearest_settlement": "Ea Súp (14km)" },
+    "weather_vals": { "tmean": 29.7, "rh": 43, "vpd": 2.3, "rain_14d_sum": 1.5, "vpd_14d_mean": 2.1 },
+    "shap_values": { "human_activity": 22, "weather": 38, "fire_history": 15, "vegetation": 16, "terrain": 9 },
+    "fire_events_12m": [
+      { "date": "2025-12-10", "prob": 0.52, "analyzed_cause": "VPD cao + thiếu mưa", "responded": false }
+    ],
+    "neighbors": [
+      { "grid_id": "grid_016", "prob": 0.76, "delta": 0.23, "dominant_factor": "Con người" },
+      { "grid_id": "grid_011", "prob": 0.91, "delta": 0.38, "dominant_factor": "Con người" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.15, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_007", "prob": 0.82, "delta": 0.29, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_008", "prob": 0.55, "delta": 0.02, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": -0.11, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_018", "prob": 0.25, "delta": -0.28, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_018": {
+    "grid_id": "grid_018", "prob": 0.25, "prob_yesterday": 0.23, "dominant_factor": "Thực vật",
+    "center_lat": 12.775, "center_lon": 108.125,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 1, "dist_road_km": 7.0, "land_use": "Rừng phòng hộ", "nearest_settlement": "Ea Súp (18km)" },
+    "weather_vals": { "tmean": 28.0, "rh": 54, "vpd": 1.6, "rain_14d_sum": 5.5, "vpd_14d_mean": 1.4 },
+    "shap_values": { "human_activity": 8, "weather": 27, "fire_history": 10, "vegetation": 40, "terrain": 15 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_017", "prob": 0.53, "delta": 0.28, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_012", "prob": 0.68, "delta": 0.43, "dominant_factor": "Lịch sử cháy" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.17, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.06, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_019", "prob": 0.14, "delta": -0.11, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_009", "prob": 0.38, "delta": 0.13, "dominant_factor": "Thực vật" }
+    ]
+  },
+  "grid_019": {
+    "grid_id": "grid_019", "prob": 0.14, "prob_yesterday": 0.15, "dominant_factor": "Địa hình",
+    "center_lat": 12.775, "center_lon": 108.175,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 11.8, "land_use": "Đất trống", "nearest_settlement": "Ea Súp (24km)" },
+    "weather_vals": { "tmean": 27.1, "rh": 61, "vpd": 1.2, "rain_14d_sum": 8.5, "vpd_14d_mean": 1.0 },
+    "shap_values": { "human_activity": 5, "weather": 19, "fire_history": 3, "vegetation": 20, "terrain": 53 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_018", "prob": 0.25, "delta": 0.11, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_013", "prob": 0.42, "delta": 0.28, "dominant_factor": "Thời tiết" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.17, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": 0.04, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_020", "prob": 0.07, "delta": -0.07, "dominant_factor": "Địa hình" }
+    ]
+  },
+  "grid_020": {
+    "grid_id": "grid_020", "prob": 0.07, "prob_yesterday": 0.08, "dominant_factor": "Địa hình",
+    "center_lat": 12.775, "center_lon": 108.225,
+    "human_signals": { "burning_season": false, "fire_count_5yr": 0, "dist_road_km": 15.2, "land_use": "Đất trống", "nearest_settlement": "Ea Súp (30km)" },
+    "weather_vals": { "tmean": 26.8, "rh": 65, "vpd": 1.0, "rain_14d_sum": 11.0, "vpd_14d_mean": 0.8 },
+    "shap_values": { "human_activity": 4, "weather": 15, "fire_history": 2, "vegetation": 16, "terrain": 63 },
+    "fire_events_12m": [],
+    "neighbors": [
+      { "grid_id": "grid_019", "prob": 0.14, "delta": 0.07, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_015", "prob": 0.18, "delta": 0.11, "dominant_factor": "Địa hình" },
+      { "grid_id": "grid_014", "prob": 0.31, "delta": 0.24, "dominant_factor": "Thực vật" },
+      { "grid_id": "grid_010", "prob": 0.12, "delta": 0.05, "dominant_factor": "Địa hình" }
+    ]
+  }
+}

@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 
 # Check predictions first
-pred = pd.read_parquet('app_predictions.parquet')
-g = pred[pred['grid_id'] == 28069]
-print('=== app_predictions — grid_id 28069 ===')
+pred = pd.read_parquet('app_predictions_map.parquet')
+g = pred[pred['grid_id'] == 6618]
+print('=== app_predictions — grid_id 6618 ===')
 row = g[g['date'] == '2024-01-14']
 print(f'2024-01-14 row:')
 print(row[['date','fire_prob','fire']].to_string())

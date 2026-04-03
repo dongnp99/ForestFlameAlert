@@ -1,0 +1,1 @@
+(v3 logic) Model khi sử dụng OR logic trong xgb_config khi tính weight cho human features
