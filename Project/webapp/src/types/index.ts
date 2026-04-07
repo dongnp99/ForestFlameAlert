@@ -1,3 +1,21 @@
+export interface AdminInfo {
+  commune:  string;   // xã / phường / thị trấn
+  district: string;   // huyện / quận / thị xã
+  province: string;   // tỉnh / thành phố
+}
+
+export interface FireClassification {
+  fire_type:        string;   // "Con người" | "Tự nhiên"
+  fire_subtype:     string;   // e.g. "Đốt nương rẫy sau thu hoạch"
+  confidence_score: number;   // 0–1
+  matched_pathways: string;   // "P1" | "P2" | "P3"
+}
+
+export interface FireTypeSummaryEntry {
+  fire_subtype: string;
+  count:        number;
+}
+
 export interface HumanSignals {
   burning_season: boolean;
   fire_count_5yr: number;
@@ -27,6 +45,7 @@ export interface GridProperties {
   center_lat: number;
   center_lon: number;
   fire: number;
+  admin_info?: AdminInfo | null;
   // Optional — only available when original feature dataset is loaded
   human_signals?: HumanSignals | null;
   weather_vals?: WeatherVals | null;
@@ -53,6 +72,7 @@ export interface DayHistory {
 }
 
 export interface GridDetail extends GridProperties {
+  fire_classification?: FireClassification | null;
   shap_values?: ShapValues | null;
   fire_events_12m: FireEvent[];
   neighbors: NeighborCell[];

@@ -1,4 +1,4 @@
-import type { GridDetail, ProbMapCollection } from '../types';
+import type { GridDetail, ProbMapCollection, FireTypeSummaryEntry } from '../types';
 
 const API_BASE = '/api';
 
@@ -17,5 +17,11 @@ export async function fetchGridDetail(gridId: string, date: string): Promise<Gri
 export async function fetchDateRange(): Promise<{ min_date: string; max_date: string }> {
   const res = await fetch(`${API_BASE}/dates`);
   if (!res.ok) throw new Error('Failed to fetch date range');
+  return res.json();
+}
+
+export async function fetchFireTypeSummary(date: string): Promise<{ date: string; subtypes: FireTypeSummaryEntry[] }> {
+  const res = await fetch(`${API_BASE}/fire-type-summary?date=${date}`);
+  if (!res.ok) throw new Error(`fire-type-summary ${res.status}: ${await res.text()}`);
   return res.json();
 }

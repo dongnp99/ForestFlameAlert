@@ -20,7 +20,7 @@ export default function MapLegend() {
         <span>0%</span>
         <span>30%</span>
         <span>60%</span>
-        <span>80%</span>
+        <span>90%</span>
         <span>100%</span>
       </div>
 
@@ -29,8 +29,8 @@ export default function MapLegend() {
         {[
           { color: '#1D9E75', label: 'Thấp  < 30%' },
           { color: '#EF9F27', label: 'TB    30–60%' },
-          { color: '#D85A30', label: 'Cao   60–80%' },
-          { color: '#E24B4A', label: 'Rất cao > 80%' },
+          { color: '#D85A30', label: 'Cao   60–90%' },
+          { color: '#E24B4A', label: 'Rất cao > 90%' },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-2">
             <span

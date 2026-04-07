@@ -7,16 +7,16 @@ import MapLegend from './MapLegend';
 import type { GridProperties, ProbMapCollection } from '../types';
 
 // ── Fire probability thresholds ────────────────────────────────────────────────
-const THRESH_HIGH   = 0.8;
+const THRESH_HIGH   = 0.9;
 const THRESH_MEDIUM = 0.6;
 const THRESH_LOW    = 0.3;
 
 // ── Color helpers ──────────────────────────────────────────────────────────────
 function getProbColor(prob: number): string {
-  if (prob > THRESH_HIGH)   return '#E24B4A';
-  if (prob > THRESH_MEDIUM) return '#D85A30';
-  if (prob > THRESH_LOW)    return '#EF9F27';
-  return '#1D9E75';
+  if (prob > THRESH_HIGH)   return '#E74C3C';
+  if (prob > THRESH_MEDIUM) return '#E67E22';
+  if (prob > THRESH_LOW)    return '#F1C40F';
+  return '#2ECC71';
 }
 
 function getProbOpacity(prob: number): number {

@@ -15,7 +15,7 @@ export default function Topbar() {
       <div className="flex items-center gap-2 mr-2">
         <span className="text-2xl">🔥</span>
         <span className="font-bold text-base tracking-tight text-white whitespace-nowrap">
-          FireWatch Đắk Lắk
+          Forest Flame Alert
         </span>
       </div>
 
@@ -48,7 +48,7 @@ export default function Topbar() {
 
       <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-emerald-900/50 border border-emerald-700/50 rounded text-emerald-400 text-xs font-mono">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        Model v2 · Human features
+        Model v5 · Human features pathways
       </div>
 
       <div className="flex-1" />

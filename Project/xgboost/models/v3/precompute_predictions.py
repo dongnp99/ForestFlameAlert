@@ -46,17 +46,13 @@ log = logging.getLogger(__name__)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 BASE        = Path(__file__).parent
-MODEL_PATH  = BASE / "Project/xgboost/models/v3/xgb_human_features_tuned_v4_pathways.json"
+MODEL_PATH  = BASE / "Project/xgboost/models/v4/xgb_focal_tuned_v1.json"
 DATA_PATH   = BASE / "Project/data/Daklak/final_inputs/daklak_final_dataset_v2_human.parquet"
 COORDS_PATH = BASE / "Project/data/Daklak/final_inputs/raw_data/daklak_grid_lon_lat.csv"
-MAP_PATH    = BASE / "app_predictions_map.parquet"
-DETAIL_PATH = BASE / "app_predictions_detail.parquet"
+MAP_PATH    = BASE / "app_predictions_map_upgrade.parquet"
+DETAIL_PATH = BASE / "app_predictions_detail_upgrade.parquet"
 
 DATE_CHUNK = 30   # larger chunks → fewer DMatrix constructions → faster overall
-
-def _sigmoid(x: np.ndarray) -> np.ndarray:
-    """Numerically-stable sigmoid for log-odds → probability."""
-    return np.where(x >= 0, 1.0 / (1.0 + np.exp(-x)), np.exp(x) / (1.0 + np.exp(x)))
 
 # ── Feature columns (must match model training order) ─────────────────────────
 FEATURE_COLS = [
@@ -190,17 +186,15 @@ for i in range(n_chunks):
     X = chunk_df[FEATURE_COLS].values   # numpy (n, 47), float32
 
     log.info("Done casting type...")
-    # ── Single XGBoost pass: contribs covers both SHAP and fire_prob ───────
+    # ── XGBoost inference ──────────────────────────────────────────────────
+    dmat = xgb.DMatrix(X, feature_names=FEATURE_COLS)
+    chunk_df["fire_prob"] = model.predict(dmat).astype("float32")
+    log.info("Done predicting...")
+
+    # ── SHAP contribs (separate pass) ─────────────────────────────────────
     # pred_contribs=True returns shape (n_rows, n_features + 1)
-    # Last column is the bias/intercept (log-odds). Sum all columns → raw score.
-    # Apply sigmoid to convert log-odds score to probability.
-    dmat     = xgb.DMatrix(X, feature_names=FEATURE_COLS)
     contribs = model.predict(dmat, pred_contribs=True,
                              approx_contribs=True)             # path-based approx: ~5–10× faster
-
-    raw_score = contribs.sum(axis=1)                          # (n,) log-odds
-    chunk_df["fire_prob"] = _sigmoid(raw_score).astype("float32")
-    log.info("Done predicting...")
 
     shap_vals = contribs[:, :-1]                              # (n, 47) — drop bias
     np.abs(shap_vals, out=shap_vals)                          # in-place absolute values
@@ -255,7 +249,7 @@ for i in range(n_chunks):
     _map_writer.write_table(map_table)
     _detail_writer.write_table(detail_table)
 
-    del chunk_df, X, dmat, contribs, shap_vals, raw_score
+    del chunk_df, X, dmat, contribs, shap_vals
     del map_chunk, detail_chunk, map_table, detail_table
     gc.collect()
 

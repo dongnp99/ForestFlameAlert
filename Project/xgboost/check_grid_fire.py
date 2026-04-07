@@ -1,20 +1,27 @@
 import pandas as pd
 import numpy as np
 
+DATE_VAL = '2024-01-14'
+GRID_ID = 28069
+
 # Check predictions first
-pred = pd.read_parquet('app_predictions_map.parquet')
-g = pred[pred['grid_id'] == 6618]
-print('=== app_predictions — grid_id 6618 ===')
-row = g[g['date'] == '2024-01-14']
-print(f'2024-01-14 row:')
-print(row[['date','fire_prob','fire']].to_string())
+pred = pd.read_parquet('models/v3/app_predictions_map.parquet')
+g = pred[pred['grid_id'] == GRID_ID]
+row = g[g['date'] == DATE_VAL]
+print(row.to_string())
+
+pred_new = pd.read_parquet('models/v4/app_predictions_map_upgrade.parquet')
+g_new = pred_new[pred_new['grid_id'] == GRID_ID]
+row_new = g_new[g_new['date'] == DATE_VAL]
+print(row_new.to_string())
+
 print()
 
 # Get raw features
-DATA_PATH = 'Project/data/Daklak/final_inputs/daklak_final_dataset_v2_human.parquet'
+DATA_PATH = '../data/Daklak/final_inputs/daklak_final_dataset_v2_human.parquet'
 df = pd.read_parquet(DATA_PATH, filters=[
-  ('date', '>=', pd.Timestamp('2024-01-14')),
-  ('date', '<=', pd.Timestamp('2024-01-14')),
+  ('date', '>=', pd.Timestamp('2024-04-08')),
+  ('date', '<=', pd.Timestamp('2024-04-08')),
 ])
 row2 = df[df['grid_id'] == 29322]
 print(f'Raw dataset rows found: {len(row2)}')

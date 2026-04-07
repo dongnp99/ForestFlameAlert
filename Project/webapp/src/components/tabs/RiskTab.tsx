@@ -2,8 +2,15 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { useFireStore } from '../../store/useFireStore';
+import type { FireClassification } from '../../types';
 import html2canvas from 'html2canvas';
 import { useRef } from 'react';
+
+const PATHWAY_LABELS: Record<string, string> = {
+  P1: 'Đốt nương rẫy sau thu hoạch',
+  P2: 'Phá rừng / Lịch sử cháy',
+  P3: 'Cháy lặp lại theo mùa',
+};
 
 const GROUP_COLORS: Record<string, string> = {
   human:   '#EF9F27',   // orange — human activity
@@ -14,6 +21,52 @@ const GROUP_LABELS: Record<string, string> = {
   human:   'Con người',
   natural: 'Tự nhiên',
 };
+
+function FireClassificationCard({ fc }: { fc: FireClassification }) {
+  const isHuman   = fc.fire_type === 'Con người';
+  const border    = isHuman ? 'border-orange-500'   : 'border-blue-500';
+  const bg        = isHuman ? 'bg-orange-950/20'    : 'bg-blue-950/20';
+  const label     = isHuman ? 'text-orange-400'     : 'text-blue-400';
+  const pillBg    = isHuman ? 'bg-orange-900/50 text-orange-300' : 'bg-blue-900/50 text-blue-300';
+  const tagBg     = isHuman ? 'bg-orange-800/60 text-orange-200' : 'bg-blue-800/60 text-blue-200';
+  const typeIcon  = isHuman ? '👤' : '🌿';
+  const confPct   = Math.round(fc.confidence_score * 100);
+  const confBar   = confPct >= 70 ? 'bg-emerald-500' : confPct >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+  const hasPathway = fc.matched_pathways && fc.matched_pathways !== 'None';
+
+  return (
+    <div className={`border-l-4 ${border} pl-3 ${bg} rounded-r-lg py-3 pr-3 space-y-2`}>
+      <p className={`${label} text-xs font-semibold uppercase tracking-wide`}>
+        Phân loại nguyên nhân cháy
+      </p>
+      <div className="flex items-center justify-between gap-2">
+        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${pillBg}`}>
+          {typeIcon} {fc.fire_type}
+        </span>
+        <span className="text-slate-300 text-xs text-right">{fc.fire_subtype}</span>
+      </div>
+      <div>
+        <div className="flex justify-between text-xs text-slate-400 mb-1">
+          <span>Độ tin cậy phân loại</span>
+          <span className="font-mono">{confPct}%</span>
+        </div>
+        <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+          <div className={`h-full ${confBar} rounded-full`} style={{ width: `${confPct}%` }} />
+        </div>
+      </div>
+      {hasPathway && (
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-1.5 py-0.5 rounded font-mono font-bold ${tagBg}`}>
+            {fc.matched_pathways}
+          </span>
+          <span className="text-slate-400 text-xs">
+            {PATHWAY_LABELS[fc.matched_pathways] ?? fc.matched_pathways}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ProbBadge({ prob }: { prob: number }) {
   const pct = (prob * 100).toFixed(1);
@@ -46,7 +99,7 @@ export default function RiskTab() {
     );
   }
 
-  const { grid_id, prob, prob_yesterday, center_lat, center_lon, shap_values, human_signals, weather_vals, fire } = gridDetail;
+  const { grid_id, prob, prob_yesterday, center_lat, center_lon, fire_classification, shap_values, human_signals, weather_vals, fire } = gridDetail;
   const delta = prob - prob_yesterday;
 
   const handleExport = async () => {
@@ -89,6 +142,18 @@ export default function RiskTab() {
           <p className="text-slate-500 text-xs">Hôm qua: {(prob_yesterday * 100).toFixed(1)}%</p>
         </div>
       </div>
+
+      {/* Fire Classification */}
+      {fire_classification
+        ? <FireClassificationCard fc={fire_classification} />
+        : (
+          <div className="border-l-4 border-slate-600/50 pl-3 bg-slate-800/20 rounded-r-lg py-3 pr-3">
+            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
+              Phân loại nguyên nhân cháy — không có dữ liệu
+            </p>
+          </div>
+        )
+      }
 
       {/* SHAP contribution — only if available */}
       {shap_values ? (

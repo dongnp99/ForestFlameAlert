@@ -1,16 +1,14 @@
 """
-backend.py — FastAPI server for FireWatch Đắk Lắk webapp.
+backend.py — FastAPI server for Forest Fire webapp.
 
-Reads from two parquet files produced by precompute_predictions.py:
-
-  app_predictions_map.parquet    → heatmap: indexed by date
-  app_predictions_detail.parquet → grid detail: indexed by grid_id
+Data files and paths are configured in config.py.
 
 Endpoints:
   GET /api/health
   GET /api/dates
   GET /api/prob-map?date=YYYY-MM-DD
   GET /api/grid-detail?grid_id=<int>&date=YYYY-MM-DD
+  GET /api/fire-type-summary?date=YYYY-MM-DD
 
 Run:
   pip install fastapi uvicorn[standard] scipy
@@ -20,7 +18,6 @@ Run:
 from __future__ import annotations
 
 from datetime import timedelta
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -28,11 +25,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from scipy.spatial import KDTree
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
-BASE         = Path(__file__).parent.parent.parent   # ForestFlameAlert/
-MAP_PATH     = BASE / "app_predictions_map.parquet"
-DETAIL_PATH  = BASE / "app_predictions_detail.parquet"
-CELL_HALF    = 0.004514   # half-size in degrees ≈ 500 m (computed from data)
+from config import MAP_PATH, DETAIL_PATH, SUMMARY_PATH, CELL_HALF, HOST, PORT
 
 # LULC class code → Vietnamese label
 LULC_LABELS: dict[int, str] = {
@@ -49,20 +42,18 @@ print("Loading map file …", flush=True)
 _map_raw = pd.read_parquet(MAP_PATH)
 _map_raw["date"] = pd.to_datetime(_map_raw["date"])
 
-# Index by date string → DataFrame of 18 803 rows
 _by_date: dict[str, pd.DataFrame] = {
     str(d.date()): g.reset_index(drop=True)
     for d, g in _map_raw.groupby("date")
 }
 
-# Grid spatial lookup (lat/lon for every unique grid_id)
 _grid_meta = (
     _map_raw.drop_duplicates("grid_id")[["grid_id", "lat", "lon"]]
     .set_index("grid_id")
 )
-_all_grid_ids  = _grid_meta.index.to_numpy()
-_grid_coords   = _grid_meta[["lat", "lon"]].to_numpy()
-_kd_tree       = KDTree(_grid_coords)
+_all_grid_ids = _grid_meta.index.to_numpy()
+_grid_coords  = _grid_meta[["lat", "lon"]].to_numpy()
+_kd_tree      = KDTree(_grid_coords)
 
 MIN_DATE = str(_map_raw["date"].min().date())
 MAX_DATE = str(_map_raw["date"].max().date())
@@ -75,13 +66,23 @@ print("Loading detail file …", flush=True)
 _detail_raw = pd.read_parquet(DETAIL_PATH)
 _detail_raw["date"] = pd.to_datetime(_detail_raw["date"])
 
-# Index by grid_id → DataFrame of 731 rows (one per date)
 _by_grid: dict[int, pd.DataFrame] = {
     int(gid): g.reset_index(drop=True)
     for gid, g in _detail_raw.groupby("grid_id")
 }
 del _detail_raw
 print(f"Detail ready: {len(_by_grid)} grids.", flush=True)
+
+# ── Load fire type summary ─────────────────────────────────────────────────────
+print("Loading fire type summary …", flush=True)
+_summary_raw = pd.read_csv(SUMMARY_PATH)
+_summary_raw["date"] = pd.to_datetime(_summary_raw["date"]).dt.date.astype(str)
+_summary_by_date: dict[str, list[dict]] = {
+    date: grp[["fire_subtype", "count"]].to_dict("records")
+    for date, grp in _summary_raw.groupby("date")
+}
+del _summary_raw
+print(f"Summary ready: {len(_summary_by_date)} dates.", flush=True)
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -119,7 +120,6 @@ def _find_neighbors(lat: float, lon: float, exclude_id: int, n: int = 8) -> list
 
 
 def _shap_to_dict(row: pd.Series) -> dict[str, float] | None:
-    """Return SHAP group % dict (2 groups: human / natural), or None if absent."""
     cols = ["shap_human", "shap_natural"]
     if not all(c in row.index for c in cols):
         return None
@@ -155,6 +155,18 @@ def _weather_vals(row: pd.Series) -> dict[str, float] | None:
         "vpd":           round(float(row["vpd"]),          3),
         "rain_14d_sum":  round(float(row["rain_14d_sum"]), 1),
         "vpd_14d_mean":  round(float(row["vpd_14d_mean"]), 3),
+    }
+
+
+def _fire_classification(row: pd.Series) -> dict[str, Any] | None:
+    needed = ["fire_type", "fire_subtype", "confidence_score", "matched_pathways"]
+    if not all(c in row.index for c in needed):
+        return None
+    return {
+        "fire_type":        str(row["fire_type"]),
+        "fire_subtype":     str(row["fire_subtype"]),
+        "confidence_score": round(float(row["confidence_score"]), 3),
+        "matched_pathways": str(row["matched_pathways"]),
     }
 
 
@@ -208,13 +220,13 @@ def get_prob_map(date: str = Query(..., description="YYYY-MM-DD")):
             "type": "Feature",
             "geometry": _make_rect(row.lat, row.lon),
             "properties": {
-                "grid_id":        gid,
-                "prob":           round(prob, 4),
-                "prob_yesterday": round(prev_prob.get(gid, prob), 4),
-                "fire":           int(row.fire),
+                "grid_id":         gid,
+                "prob":            round(prob, 4),
+                "prob_yesterday":  round(prev_prob.get(gid, prob), 4),
+                "fire":            int(row.fire),
                 "dominant_factor": dom,
-                "center_lat":     round(row.lat, 6),
-                "center_lon":     round(row.lon, 6),
+                "center_lat":      round(row.lat, 6),
+                "center_lon":      round(row.lon, 6),
             },
         })
 
@@ -229,10 +241,11 @@ def get_grid_detail(
     """
     Full sidebar data for one grid on one date:
       - prob, prob_yesterday, fire
+      - fire_classification (fire_type, fire_subtype, confidence_score, matched_pathways)
       - shap_values (% per group)
       - human_signals
       - weather_vals
-      - history_30d  (last 30 days from detail file)
+      - history_30d  (last 30 days)
       - fire_events_12m (fire=1 rows in last 12 months)
       - neighbors (8 nearest grids with current probs)
     """
@@ -242,7 +255,6 @@ def get_grid_detail(
     meta = _grid_meta.loc[grid_id]
     lat, lon = float(meta["lat"]), float(meta["lon"])
 
-    # ── Validate date exists in map data ──────────────────────────────────
     today_map = _get_day(date)
     row_map   = today_map[today_map["grid_id"] == grid_id]
     if row_map.empty:
@@ -251,7 +263,6 @@ def get_grid_detail(
     fire_today = int(row_map["fire"].iloc[0])
     dom_today  = str(row_map["dominant_factor"].iloc[0]) if "dominant_factor" in row_map.columns else "N/A"
 
-    # Yesterday's prob (from map data)
     prev_map = _by_date.get(_prev_date_str(date))
     if prev_map is not None:
         row_prev = prev_map[prev_map["grid_id"] == grid_id]
@@ -259,21 +270,19 @@ def get_grid_detail(
     else:
         prob_yesterday = prob_today
 
-    # ── Pull all history for this grid from detail file ───────────────────
-    grid_hist = _by_grid.get(grid_id)   # DataFrame of 731 rows, sorted by date
+    grid_hist = _by_grid.get(grid_id)
 
-    # Current-date row in detail file (for shap/human/weather)
-    shap_vals = human_sigs = weather = None
+    fire_cls = shap_vals = human_sigs = weather = None
     if grid_hist is not None:
         ts = pd.Timestamp(date)
         row_detail = grid_hist[grid_hist["date"] == ts]
         if not row_detail.empty:
-            r = row_detail.iloc[0]
-            shap_vals = _shap_to_dict(r)
+            r          = row_detail.iloc[0]
+            fire_cls   = _fire_classification(r)
+            shap_vals  = _shap_to_dict(r)
             human_sigs = _human_signals(r)
             weather    = _weather_vals(r)
 
-    # ── History 30 days ───────────────────────────────────────────────────
     history_30d: list[dict] = []
     if grid_hist is not None:
         anchor = pd.Timestamp(date)
@@ -286,7 +295,6 @@ def get_grid_detail(
                 "fire":  int(r.fire),
             })
 
-    # ── Fire events last 12 months ────────────────────────────────────────
     fire_events_12m: list[dict] = []
     if grid_hist is not None:
         anchor = pd.Timestamp(date)
@@ -300,10 +308,9 @@ def get_grid_detail(
                 "date":           str(r.date.date()),
                 "prob":           round(float(r.fire_prob), 4),
                 "analyzed_cause": f"Nhân tố chính: {cause}",
-                "responded":      False,   # not available in dataset
+                "responded":      False,
             })
 
-    # ── Neighbors ─────────────────────────────────────────────────────────
     neighbor_gids = _find_neighbors(lat, lon, exclude_id=grid_id)
     today_prob_map: dict[int, float] = dict(
         zip(today_map["grid_id"].values, today_map["fire_prob"].values.astype(float))
@@ -316,9 +323,9 @@ def get_grid_detail(
     neighbors = sorted(
         [
             {
-                "grid_id":        ngid,
-                "prob":           round(today_prob_map.get(ngid, 0.0), 4),
-                "delta":          round(today_prob_map.get(ngid, 0.0) - prob_today, 4),
+                "grid_id":         ngid,
+                "prob":            round(today_prob_map.get(ngid, 0.0), 4),
+                "delta":           round(today_prob_map.get(ngid, 0.0) - prob_today, 4),
                 "dominant_factor": today_dom_map.get(ngid, "N/A"),
             }
             for ngid in neighbor_gids
@@ -328,23 +335,31 @@ def get_grid_detail(
     )
 
     return {
-        "grid_id":         grid_id,
-        "center_lat":      round(lat, 6),
-        "center_lon":      round(lon, 6),
-        "prob":            round(prob_today, 4),
-        "prob_yesterday":  round(prob_yesterday, 4),
-        "fire":            fire_today,
-        "dominant_factor": dom_today,
-        "shap_values":     shap_vals,
-        "human_signals":   human_sigs,
-        "weather_vals":    weather,
-        "history_30d":     history_30d,
-        "fire_events_12m": fire_events_12m,
-        "neighbors":       neighbors,
+        "grid_id":             grid_id,
+        "center_lat":          round(lat, 6),
+        "center_lon":          round(lon, 6),
+        "prob":                round(prob_today, 4),
+        "prob_yesterday":      round(prob_yesterday, 4),
+        "fire":                fire_today,
+        "dominant_factor":     dom_today,
+        "fire_classification": fire_cls,
+        "shap_values":         shap_vals,
+        "human_signals":       human_sigs,
+        "weather_vals":        weather,
+        "history_30d":         history_30d,
+        "fire_events_12m":     fire_events_12m,
+        "neighbors":           neighbors,
     }
+
+
+@app.get("/api/fire-type-summary")
+def get_fire_type_summary(date: str = Query(..., description="YYYY-MM-DD")):
+    """Daily fire subtype counts across all grids for the given date."""
+    data = _summary_by_date.get(date, [])
+    return {"date": date, "subtypes": data}
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("backend:app", host=HOST, port=PORT, reload=False)
