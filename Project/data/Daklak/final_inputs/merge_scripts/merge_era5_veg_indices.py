@@ -16,7 +16,7 @@ RENAME    = {
     "NDII_mean":   "ndii",
 }
 
-# ── 1. Load all veg CSVs into memory ─────────────────────────────────────────
+#  1. Load all veg CSVs into memory ─
 print("Loading veg indices...")
 dfs = []
 for year in range(2015, 2025):
@@ -42,7 +42,7 @@ del dfs
 gc.collect()
 print(f"Total veg rows loaded: {len(veg):,}\n")
 
-# ── 2. Chunked merge with daklak_era5_firms.csv ───────────────────────────────
+#  2. Chunked merge with daklak_era5_firms.csv ─
 print("Merging with ERA5+FIRMS...")
 first = True
 

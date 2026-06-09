@@ -1,0 +1,18 @@
+XGBoost v5 — Full Evaluation
+============================================================
+Model: xgb_human_features_tuned_v5_pathways.json
+Threshold (F2-optimal on val): 0.9273
+
+[Standard]
+  AUC-PR    = 0.0190
+  AUC-ROC   = 0.9194
+  Precision = 0.0337
+  Recall    = 0.1571
+  F1        = 0.0554
+  F2        = 0.0906
+  TP=2,577  FP=74,002  FN=13,826  TN=13,654,588
+
+[Domain — K=5%, alpha=0.7]
+  Recall@P_min(5%) = 0.0208  (prec=0.0500, thresh=0.9750754237174988)
+  PEI@5%           = 11.42  (recall_at_k=0.5712, fires=9370/16403)
+  FRES@5%          = 0.4040  (recall=0.5712, prec=0.0136)

@@ -171,7 +171,7 @@ def train():
         print(f"VRAM   : {vram:.1f} GB")
     print("=" * 55)
 
-    # ── 1. DataLoaders ───────────────────────────────────────────
+    #  1. DataLoaders ─
     print("\n[1/5] Build DataLoaders...")
     train_loader, val_loader, test_loader, pos_weight, info = \
         build_all_dataloaders(
@@ -182,7 +182,7 @@ def train():
     pos_weight = pos_weight  # không cap, comment: ~854x với fire rate 0.00117
     print(f"  pos_weight cap : {pos_weight:.1f}x")
 
-    # ── 2. Model ─────────────────────────────────────────────────
+    #  2. Model ─
     print("\n[2/5] Build model...")
     # Truyền pos_weight từ data vào FocalLoss
     model, criterion, optimizer = build_model(MODEL_CFG,
@@ -210,7 +210,7 @@ def train():
     # Mixed precision scaler
     scaler = torch.amp.GradScaler("cuda")
 
-    # ── 3. Setup tracking ────────────────────────────────────────
+    #  3. Setup tracking 
     print("\n[3/5] Setup tracking...")
     model_path   = OUTPUT_DIR / f"best_model_{RUN_ID}.pt"
     history_path = OUTPUT_DIR / f"history_{RUN_ID}.csv"
@@ -231,7 +231,7 @@ def train():
     print(f"  Model path   → {model_path}")
     print(f"  History CSV  → {history_path}")
 
-    # ── 4. Training loop ─────────────────────────────────────────
+    #  4. Training loop ─
     print(f"\n[4/5] Training (max {TRAIN_CFG['epochs']} epochs)...\n")
 
     for epoch in range(1, TRAIN_CFG["epochs"] + 1):
@@ -335,7 +335,7 @@ def train():
 
     csv_file.close()
 
-    # ── 5. Kết quả ───────────────────────────────────────────────
+    #  5. Kết quả ─
     print("\n[5/5] Lưu kết quả...")
 
     ckpt = torch.load(model_path, map_location=DEVICE, weights_only=True)

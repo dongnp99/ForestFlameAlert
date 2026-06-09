@@ -175,14 +175,14 @@ export default function RiskTab() {
                   contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: 12 }}
                   labelStyle={{ display: 'none' }}
                 />
-                {Object.keys(shap_values).map((key) => (
+                {(['natural', 'human'] as const).map((key) => (
                   <Bar key={key} dataKey={key} stackId="a" fill={GROUP_COLORS[key]} />
                 ))}
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-            {Object.entries(shap_values).sort(([, a], [, b]) => b - a).map(([key, val]) => (
+            {(['natural', 'human'] as const).map((key) => { const val = shap_values[key]; return (
               <div key={key} className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: GROUP_COLORS[key] }} />
@@ -190,7 +190,7 @@ export default function RiskTab() {
                 </div>
                 <span className="text-slate-400 text-xs font-mono">{val}%</span>
               </div>
-            ))}
+            ); })}
           </div>
         </div>
       ) : (
@@ -250,21 +250,6 @@ export default function RiskTab() {
           </p>
         </div>
       )}
-
-      {/* Action buttons */}
-      <div className="flex gap-2 pt-1">
-        <button
-          onClick={handleExport}
-          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium transition-colors"
-        >
-          <span>📄</span> Tạo báo cáo
-        </button>
-        <button
-          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium transition-colors"
-        >
-          <span>🛡</span> Gợi ý ứng phó
-        </button>
-      </div>
     </div>
   );
 }

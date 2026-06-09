@@ -204,7 +204,7 @@ class ConvLSTMWildfire(nn.Module):
         drop    = c["dropout"]   # 0.3
         n_feat  = c["n_feat"]    # 25
 
-        # ── ConvLSTM stack ───────────────────────────────────────
+        #  ConvLSTM stack ─
         self.convlstm1 = ConvLSTMLayer(
             in_channels=n_feat,
             hidden_channels=filters[0],
@@ -226,7 +226,7 @@ class ConvLSTMWildfire(nn.Module):
             nn.Conv2d(filters[1], 1, kernel_size=1),
             nn.Sigmoid()
         )
-        # ── Decoder ──────────────────────────────────────────────
+        #  Decoder 
         self.decoder = nn.Sequential(
             nn.Conv2d(filters[1], 32, kernel_size=3, padding=2, dilation=2),
             nn.ReLU(inplace=True),

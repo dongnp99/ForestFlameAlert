@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-# ── Config (mirrors xgb_config.py) ────────────────────────────────────────
+#  Config (mirrors xgb_config.py) 
 PARQUET_PATH   = Path("daklak_final_dataset.parquet")
 TRAIN_END_DATE = pd.Timestamp("2021-12-31")
 VAL_END_DATE   = pd.Timestamp("2022-12-31")
@@ -72,7 +72,7 @@ def read_split(filters):
     df["date"] = pd.to_datetime(df["date"])
     return df
 
-# ── 0. File exists ─────────────────────────────────────────────────────────
+#  0. File exists ─
 section("0. File check")
 if not PARQUET_PATH.exists():
     print(f"{FAIL} {PARQUET_PATH} not found -- run build_dataset.py first")
@@ -85,7 +85,7 @@ print(f"     Rows       : {meta.num_rows:,}")
 print(f"     Row groups : {meta.num_row_groups}")
 print(f"     File size  : {size_gb:.2f} GB")
 
-# ── 1. Schema (no full load needed) ───────────────────────────────────────
+#  1. Schema (no full load needed) ─
 section("1. Schema")
 schema_pq = pq.read_schema(PARQUET_PATH)
 cols      = set(schema_pq.names)
@@ -121,7 +121,7 @@ for col in sorted(cols):
 
 del sample
 
-# ── 2. Read splits via parquet filters (avoids OOM from slicing full df) ──
+#  2. Read splits via parquet filters (avoids OOM from slicing full df) 
 section("2. Date range & splits")
 print("  Reading each split directly from parquet (memory-efficient)...")
 
@@ -140,7 +140,7 @@ for name, split in [("Train", train), ("Val", val), ("Test", test)]:
     if len(split) == 0:
         errors.append(f"{name} split is empty")
 
-# ── 3. Fire label balance ──────────────────────────────────────────────────
+#  3. Fire label balance 
 section("3. Fire label balance")
 print(f"  {'Split':<8} {'Total':>10} {'Fire=1':>10} {'Fire=0':>10} "
       f"{'Pos%':>8} {'scale_pos_weight':>18}")
@@ -154,7 +154,7 @@ for name, split in [("Train", train), ("Val", val), ("Test", test)]:
     print(f"  {name:<8} {len(split):>10,} {n1:>10,} {n0:>10,} "
           f"{pct:>7.3f}% {spw:>18.1f}{note}")
 
-# ── 4. Missing values per split ───────────────────────────────────────────
+#  4. Missing values per split ─
 section("4. Missing values")
 check_cols = [c for c in CURRENT_FEATURE_COLS + NEW_VEG_COLS if c in cols]
 
@@ -174,7 +174,7 @@ for name, split in [("Train", train), ("Val", val), ("Test", test)]:
             else:
                 warnings.append(f"{name}/{col}: {pct:.2f}% missing")
 
-# ── 5. Feature value sanity (train split) ─────────────────────────────────
+#  5. Feature value sanity (train split) ─
 section("5. Feature sanity (train split)")
 for col, (lo, hi) in EXPECTED_RANGES.items():
     if col not in train.columns:
@@ -188,7 +188,7 @@ for col, (lo, hi) in EXPECTED_RANGES.items():
     if out:
         warnings.append(f"{col} out of range [{mn:.3f}, {mx:.3f}]")
 
-# ── 6. Veg coverage by year ───────────────────────────────────────────────
+#  6. Veg coverage by year ─
 if "has_s2" in cols:
     section("6. Veg (NDVI) coverage by year")
     # Read only date + has_s2 to avoid loading all columns
@@ -208,7 +208,7 @@ else:
     section("6. Veg coverage")
     print(f"  {WARN} has_s2 not found -- veg merge may have failed")
 
-# ── 7. Grid completeness (train split) ────────────────────────────────────
+#  7. Grid completeness (train split) 
 section("7. Grid completeness (train split)")
 n_grids      = train["grid_id"].nunique()
 n_dates      = train["date"].nunique()
@@ -225,7 +225,7 @@ if pct_complete < 99:
 else:
     print(f"  {OK}  Grid completeness OK")
 
-# ── Summary ───────────────────────────────────────────────────────────────
+#  Summary ─
 section("SUMMARY")
 if errors:
     print(f"  {FAIL} {len(errors)} error(s) -- fix before retraining:")

@@ -1,0 +1,65 @@
+2026-04-20 10:27:37,620 | INFO | Log file: D:\Master\ForestFlameAlert\Project\article_comparison\weighted_overlay_v2_log.txt
+2026-04-20 10:27:37,621 | INFO | [0/6] Tính NDVI phenology từ time-series 2023
+2026-04-20 10:27:38,679 | INFO |       Loaded 6833614 valid rows
+2026-04-20 10:27:47,142 | INFO |       Phenology distribution:
+2026-04-20 10:27:47,145 | INFO |         evergreen_medium   9375 grids (49.9%)
+2026-04-20 10:27:47,145 | INFO |         mixed              6445 grids (34.3%)
+2026-04-20 10:27:47,145 | INFO |         deciduous          1747 grids (9.3%)
+2026-04-20 10:27:47,145 | INFO |         semi_deciduous     1228 grids (6.5%)
+2026-04-20 10:27:47,146 | INFO |         evergreen_dense    8 grids (0.0%)
+2026-04-20 10:27:47,146 | INFO |       ndvi_amplitude:    median=0.332  mean=0.369
+2026-04-20 10:27:47,147 | INFO |       ndvi_dry_median:   median=0.551  mean=0.528
+2026-04-20 10:27:47,148 | INFO | [1/6] Aggregate climatology mùa khô 2023-11-01 → 2024-04-30
+2026-04-20 10:27:48,102 | INFO |       Rows sau lọc: 3422146
+2026-04-20 10:27:48,290 | INFO |       Aggregated: 18803 grids
+2026-04-20 10:27:48,290 | INFO |       Grids có fire: 4249 / 18803 (22.60%)
+2026-04-20 10:27:48,290 | INFO |       tmean range:        20.0 – 28.3 °C
+2026-04-20 10:27:48,290 | INFO |       rain_monthly range: 6.9 – 206.8 mm
+2026-04-20 10:27:48,303 | INFO | [2/6] Áp dụng scoring functions với phenology
+2026-04-20 10:27:48,467 | INFO |       LULC score distribution:
+2026-04-20 10:27:48,467 | INFO |         score=1: 3023 grids (16.1%)
+2026-04-20 10:27:48,468 | INFO |         score=2: 8186 grids (43.5%)
+2026-04-20 10:27:48,468 | INFO |         score=3: 4770 grids (25.4%)
+2026-04-20 10:27:48,468 | INFO |         score=4: 2824 grids (15.0%)
+2026-04-20 10:27:48,468 | INFO | [3/6] Tính weighted overlay
+2026-04-20 10:27:48,470 | INFO |       Quantile cutoffs: I≤2.100, II≤2.450, III≤3.200, IV>3.200
+2026-04-20 10:27:48,472 | INFO | [4/6] Đánh giá baseline
+2026-04-20 10:27:48,483 | INFO | [5/6] So sánh với XGBoost
+2026-04-20 10:27:49,534 | INFO | [6/6] Vẽ bản đồ baseline
+2026-04-20 10:27:50,619 | INFO | Done! Log saved to: D:\Master\ForestFlameAlert\Project\article_comparison\weighted_overlay_v2_log.txt
+
+=================================================================
+BẢNG 1: Phân bố diện tích theo cấp nguy cơ
+=================================================================
+Cấp        Số grid      % (ours)     % (paper)         Δ
+-----------------------------------------------------------------
+1            7,455         39.6%         35.9%     +3.7
+2            3,910         20.8%         21.3%     -0.5
+3            6,254         33.3%         36.1%     -2.8
+4            1,184          6.3%          6.8%     -0.5
+
+=================================================================
+BẢNG 2: Kiểm chứng — phân bố grid có fire theo cấp
+=================================================================
+Cấp        Số fire      % (ours)     % (paper)         Δ
+-----------------------------------------------------------------
+1              922         21.7%          0.0%    +21.7
+2              554         13.0%         24.0%    -11.0
+3            1,926         45.3%         30.0%    +15.3
+4              847         19.9%         46.0%    -26.1
+
+Recall ở cấp III-IV: 65.3%  (paper: 76.0%)
+
+=================================================================
+BẢNG 3: ML metrics (Weighted Overlay v2)
+=================================================================
+  AUC-PR  : 0.484470
+  ROC-AUC : 0.720604
+
+=================================================================
+BẢNG 4: So sánh Weighted Overlay v2 vs XGBoost
+=================================================================
+Metric              WeightedOverlay             XGBoost         Δ
+-----------------------------------------------------------------
+AUC-PR                     0.484470            0.658997   +0.1745
+ROC-AUC                    0.720604            0.886574   +0.1660

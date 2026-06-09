@@ -37,7 +37,7 @@ LULC_LABELS: dict[int, str] = {
     80: "Mặt nước",
 }
 
-# ── Load map data ──────────────────────────────────────────────────────────────
+#  Load map data 
 print("Loading map file …", flush=True)
 _map_raw = pd.read_parquet(MAP_PATH)
 _map_raw["date"] = pd.to_datetime(_map_raw["date"])
@@ -61,7 +61,7 @@ del _map_raw
 print(f"Map ready: {len(_by_date)} dates, {len(_grid_meta)} grids "
       f"({MIN_DATE} → {MAX_DATE})", flush=True)
 
-# ── Load detail data ───────────────────────────────────────────────────────────
+#  Load detail data ─
 print("Loading detail file …", flush=True)
 _detail_raw = pd.read_parquet(DETAIL_PATH)
 _detail_raw["date"] = pd.to_datetime(_detail_raw["date"])
@@ -73,7 +73,7 @@ _by_grid: dict[int, pd.DataFrame] = {
 del _detail_raw
 print(f"Detail ready: {len(_by_grid)} grids.", flush=True)
 
-# ── Load fire type summary ─────────────────────────────────────────────────────
+#  Load fire type summary ─
 print("Loading fire type summary …", flush=True)
 _summary_raw = pd.read_csv(SUMMARY_PATH)
 _summary_raw["date"] = pd.to_datetime(_summary_raw["date"]).dt.date.astype(str)
@@ -84,7 +84,7 @@ _summary_by_date: dict[str, list[dict]] = {
 del _summary_raw
 print(f"Summary ready: {len(_summary_by_date)} dates.", flush=True)
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+#  Helpers 
 
 def _get_day(date_str: str) -> pd.DataFrame:
     df = _by_date.get(date_str)
@@ -170,7 +170,7 @@ def _fire_classification(row: pd.Series) -> dict[str, Any] | None:
     }
 
 
-# ── FastAPI app ────────────────────────────────────────────────────────────────
+#  FastAPI app 
 app = FastAPI(title="FireWatch Đắk Lắk API")
 
 app.add_middleware(
@@ -359,7 +359,7 @@ def get_fire_type_summary(date: str = Query(..., description="YYYY-MM-DD")):
     return {"date": date, "subtypes": data}
 
 
-# ── Entry point ────────────────────────────────────────────────────────────────
+#  Entry point 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend:app", host=HOST, port=PORT, reload=False)

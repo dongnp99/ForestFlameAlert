@@ -167,7 +167,7 @@ def main() -> None:
     sys.path.insert(0, str(HERE))
     from grid_utils import load_grid_polygons, load_grid_points
 
-    # ── 1. Download ESA WorldCover tiles ──────────────────────────────────────
+    #  1. Download ESA WorldCover tiles 
     print("\n[1/7] Downloading ESA WorldCover tiles ...")
     esa_tile_paths = []
     for tile in ESA_TILES:
@@ -175,12 +175,12 @@ def main() -> None:
         download(ESA_BASE.format(tile=tile), dest)
         esa_tile_paths.append(dest)
 
-    # ── 2. Merge + clip ESA ───────────────────────────────────────────────────
+    # 2. Merge + clip ESA 
     print("\n[2/7] Merging ESA tiles ...")
     esa_merged_path = RASTERS_DIR / "esa_worldcover_daklak.tif"
     merge_and_clip_esa(esa_tile_paths, esa_merged_path)
 
-    # ── 3. Download Hansen GFC tiles ──────────────────────────────────────────
+    #  3. Download Hansen GFC tiles 
     print("\n[3/7] Downloading Hansen GFC tiles ...")
     hansen_tc_raw   = RASTERS_DIR / "hansen_treecover2000_20N_100E.tif"
     hansen_loss_raw = RASTERS_DIR / "hansen_lossyear_20N_100E.tif"
@@ -199,13 +199,13 @@ def main() -> None:
             p.unlink()
             print(f"  Removed wrong tile: {old}")
 
-    # ── 4. Build grid polygons ────────────────────────────────────────────────
+    #  4. Build grid polygons 
     print("\n[4/7] Building grid polygons ...")
     grid_poly = load_grid_polygons(crs="EPSG:4326")
     grid_pts  = load_grid_points(crs="EPSG:4326")
     print(f"  {len(grid_poly):,} grid polygons")
 
-    # ── 5. Zonal stats: ESA WorldCover ────────────────────────────────────────
+    #  5. Zonal stats: ESA WorldCover 
     print("\n[5/7] ESA WorldCover zonal stats (majority + cropland fraction) ...")
     if OUT_STATIC.exists():
         print("  lulc_hansen.parquet already exists, loading cached values ...")
@@ -235,7 +235,7 @@ def main() -> None:
         print(f"  lulc_class: {np.unique(lulc_class)}")
         print(f"  cropland_frac mean: {cropland_frac.mean():.3f}")
 
-        # ── Hansen tree cover (only if not cached) ─────────────────────────────
+        #  Hansen tree cover (only if not cached)
         print("  tree_cover_pct ...")
         tc_stats = zonal_stats(
             grid_poly,
@@ -248,7 +248,7 @@ def main() -> None:
         )
         print(f"  tree_cover_pct mean: {tree_cover_pct.mean():.1f}%")
 
-    # ── 6. Zonal stats: Hansen tree cover (header kept for step numbering) ────
+    #  6. Zonal stats: Hansen tree cover (header kept for step numbering) 
     print("\n[6/7] Hansen GFC deforestation stats ...")
 
     # deforestation_lag_1y per year
@@ -289,7 +289,7 @@ def main() -> None:
     defor_df.to_parquet(OUT_DEFOR, index=False)
     print(f"  Saved -> {OUT_DEFOR.name}  shape={defor_df.shape}")
 
-    # ── 7. dist_forest_edge_km via EDT on ESA forest mask ─────────────────────
+    #  7. dist_forest_edge_km via EDT on ESA forest mask
     print("\n[7/7] Computing dist_forest_edge_km ...")
 
     with rasterio.open(esa_merged_path) as src:
@@ -334,7 +334,7 @@ def main() -> None:
         )
     print(f"  dist_forest_edge_km mean: {dist_vals.mean():.3f} km")
 
-    # ── 8. Assemble static feature table ──────────────────────────────────────
+    #  8. Assemble static feature table 
     static_df = pd.DataFrame({
         "grid_id":            grid_pts["grid_id"].values,
         "lulc_class":         lulc_class,

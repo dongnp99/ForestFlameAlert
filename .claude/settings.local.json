@@ -4,7 +4,17 @@
       "Bash(python s6_train.py)",
       "Bash(PYTHONUTF8=1 python s6_train.py)",
       "Bash(python:*)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(pip install:*)",
+      "Bash(xargs grep:*)",
+      "Read(//mnt/d/Master/ForestFlameAlert/Project/**)",
+      "Read(//mnt/d/Master/ForestFlameAlert/Project/data/Daklak/**)",
+      "Bash(Get-ChildItem -Path \"clstm\", \"random_forest\", \"xgboost\", \"ensemble\", \"baseline\", \"data\\\\Daklak\\\\final_inputs\\\\clstm_data\\\\outputs\" -Recurse -ErrorAction SilentlyContinue -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem -Recurse -Path \"D:\\\\Master\\\\ForestFlameAlert\\\\Project\\\\webapp\" -Force)",
+      "Bash(Select-Object -First 200)",
+      "Bash(Format-Table FullName)"
     ]
   }
 }

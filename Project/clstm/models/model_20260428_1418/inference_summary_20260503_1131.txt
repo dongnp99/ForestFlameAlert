@@ -1,0 +1,7 @@
+model_path : /kaggle/input/datasets/flyingcow781/clstm-check-point/best_model_20260428_1418.pt
+checkpoint : epoch=13  val_auc_pr=0.015274
+infer_time : 20260503_1131
+
+train : auc_pr=0.027565  n_days=2550  n_pixels=48,210,300
+val   : auc_pr=0.015305  n_days=358  n_pixels=6,768,348
+test  : auc_pr=0.016226  n_days=724  n_pixels=13,687,944

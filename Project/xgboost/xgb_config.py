@@ -16,7 +16,7 @@ import numpy as np
 # DATA PATH
 # =============================
 
-DATA_PATH = "../data/Daklak/final_inputs/daklak_final_dataset_v3_pathways.parquet"
+DATA_PATH = "D:/Master/ForestFlameAlert/Project/data/Daklak/final_inputs/daklak_final_dataset_v3_pathways.parquet"
 
 # =============================
 # TIME SPLIT
@@ -123,11 +123,11 @@ def classify_fire_type(df) -> "pd.DataFrame":
         + pw["p3"].astype(np.int8)
     )
 
-    # ── Fire type ──────────────────────────────────────────────────────────
+    #  Fire type 
     human = pw["p1"] | pw["p2"] | pw["p3"]
     fire_type = np.where(human, "Con người", "Tự nhiên")
 
-    # ── Fire subtype (ưu tiên pathway có selectivity cao nhất) ─────────────
+    #  Fire subtype (ưu tiên pathway có selectivity cao nhất) ─
     # P3 (7.76x) > P2 (2.41x) > P1 (1.74x)
     subtype = np.full(len(df), "Thời tiết / Tự nhiên", dtype=object)
     # Gán theo thứ tự ưu tiên thấp → cao (high priority ghi đè)
@@ -138,7 +138,7 @@ def classify_fire_type(df) -> "pd.DataFrame":
     # Nếu match nhiều pathway, gán subtype = "Đa yếu tố nhân tạo"
     subtype[score >= 2] = "Đa yếu tố nhân tạo"
 
-    # ── Confidence score ───────────────────────────────────────────────────
+    #  Confidence score ─
     # Dựa trên pathway score + human_signal_strength (nếu có)
     confidence = np.zeros(len(df), dtype="float32")
 
@@ -155,7 +155,7 @@ def classify_fire_type(df) -> "pd.DataFrame":
     # Tự nhiên: confidence = 1 - confidence (chắc chắn tự nhiên)
     confidence[~human] = 1.0 - confidence[~human]
 
-    # ── Matched pathways string ────────────────────────────────────────────
+    #  Matched pathways string 
     pw_labels = []
     for i in range(len(df)):
         parts = []
@@ -177,7 +177,7 @@ def classify_fire_type(df) -> "pd.DataFrame":
 # =============================
 
 FEATURE_COLS = [
-
+    # v1
     # ===== Weather hiện tại =====
     "tmean",
     "rh",
@@ -213,6 +213,7 @@ FEATURE_COLS = [
     "vpd_neighbor_1d",
     "vpd_fire_lag_1",
 
+    #v2
     # ===== Vegetation (Sentinel-2) =====
     "ndvi",
     "ndvi_std",

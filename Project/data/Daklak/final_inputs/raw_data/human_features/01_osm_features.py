@@ -31,7 +31,7 @@ import shapely
 import shapely.wkb as wkblib
 from shapely.geometry import Point, box
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
+#  Paths 
 HERE        = Path(__file__).parent
 RASTERS_DIR = HERE / "rasters"
 FEATURES_DIR = HERE / "features"
@@ -42,15 +42,15 @@ PBF_DEFAULT  = RASTERS_DIR / "vietnam-latest.osm.pbf"
 PBF_URL      = "https://download.geofabrik.de/asia/vietnam-latest.osm.pbf"
 OUT_PARQUET  = FEATURES_DIR / "osm_distances.parquet"
 
-# ── Đắk Lắk bounding box ──────────────────────────────────────────────────────
+#  Đắk Lắk bounding box 
 BBOX = (107.4, 11.4, 108.9, 13.1)   # minlon, minlat, maxlon, maxlat
 BBOX_GEOM = box(*BBOX)
 
-# ── Settlement place types to include ─────────────────────────────────────────
+#  Settlement place types to include 
 PLACE_TAGS = {"village", "town", "city", "hamlet", "suburb", "quarter"}
 
 
-# ── OSM Handler ───────────────────────────────────────────────────────────────
+#  OSM Handler
 class DakLakExtractor(osmium.SimpleHandler):
     """Single-pass handler that collects road, settlement, and powerline geometries."""
 
@@ -84,7 +84,7 @@ class DakLakExtractor(osmium.SimpleHandler):
                 self.settlements.append(Point(loc.lon, loc.lat))
 
 
-# ── Distance helper (vectorized via shapely 2.x STRtree) ──────────────────────
+#  Distance helper (vectorized via shapely 2.x STRtree) 
 def nearest_distance_km(grid_pts_utm: np.ndarray, target_geoms: list) -> np.ndarray:
     """
     For each point in grid_pts_utm, return the distance in km to the
@@ -101,7 +101,7 @@ def nearest_distance_km(grid_pts_utm: np.ndarray, target_geoms: list) -> np.ndar
     return (distances_m / 1000).astype("float32")
 
 
-# ── Download PBF if missing ───────────────────────────────────────────────────
+#  Download PBF if missing
 def ensure_pbf(pbf_path: Path) -> None:
     if pbf_path.exists():
         size_mb = pbf_path.stat().st_size / 1e6
@@ -124,7 +124,7 @@ def ensure_pbf(pbf_path: Path) -> None:
     print(f"\n  Saved to {pbf_path}")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+#  Main 
 def main(pbf_path: Path) -> None:
     # 1. Load grid centroids
     print("\n[1/5] Loading grid centroids …")

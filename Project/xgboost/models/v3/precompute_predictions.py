@@ -44,7 +44,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
+#  Paths 
 BASE        = Path(__file__).parent
 MODEL_PATH  = BASE / "Project/xgboost/models/v4/xgb_focal_tuned_v1.json"
 DATA_PATH   = BASE / "Project/data/Daklak/final_inputs/daklak_final_dataset_v2_human.parquet"
@@ -54,7 +54,7 @@ DETAIL_PATH = BASE / "app_predictions_detail_upgrade.parquet"
 
 DATE_CHUNK = 30   # larger chunks → fewer DMatrix constructions → faster overall
 
-# ── Feature columns (must match model training order) ─────────────────────────
+#  Feature columns (must match model training order) ─
 FEATURE_COLS = [
     "tmean", "rh", "wind", "rain", "vpd",
     "rain_14d_sum", "rain_30d_sum", "vpd_14d_mean", "vpd_30d_mean",
@@ -72,7 +72,7 @@ FEATURE_COLS = [
     "days_since_last_fire", "burn_season_flag", "days_since_harvest",
 ]
 
-# ── SHAP feature groups (2-group: human vs natural) ───────────────────────────
+#  SHAP feature groups (2-group: human vs natural) ─
 # Every feature in FEATURE_COLS belongs to exactly one group.
 # Human: features that reflect direct human activity and land management.
 # Natural: weather, fire spread dynamics, vegetation state, terrain.
@@ -102,7 +102,7 @@ SHAP_GROUPS: dict[str, list[str]] = {
 }
 SHAP_COLS = list(SHAP_GROUPS.keys())   # ["shap_human", "shap_natural"]
 
-# ── Columns saved to each output file ─────────────────────────────────────────
+#  Columns saved to each output file ─
 # Map file: lean — only what the heatmap renderer needs
 MAP_COLS = ["date", "grid_id", "fire_prob", "fire", "dominant_factor"]
 # (lat, lon joined from coords after concat)
@@ -119,25 +119,25 @@ DETAIL_COLS = (
     + ["dominant_factor"]
 )
 
-# ── Pre-build group → column-index mapping for fast SHAP aggregation ──────────
+#  Pre-build group → column-index mapping for fast SHAP aggregation 
 _feat_index = {f: i for i, f in enumerate(FEATURE_COLS)}
 GROUP_INDICES: dict[str, list[int]] = {
     g: [_feat_index[f] for f in feats if f in _feat_index]
     for g, feats in SHAP_GROUPS.items()
 }
 
-# ── Load model ─────────────────────────────────────────────────────────────────
+#  Load model ─
 log.info("Loading XGBoost model from %s", MODEL_PATH)
 model = xgb.Booster()
 model.load_model(MODEL_PATH)
 model.set_param("nthread", str(-1))   # use all physical cores
 log.info("Model loaded.")
 
-# ── Load grid coordinates ──────────────────────────────────────────────────────
+#  Load grid coordinates 
 coords = pd.read_csv(COORDS_PATH)
 log.info("Loaded %d grid coordinate rows.", len(coords))
 
-# ── Collect unique dates in test period ───────────────────────────────────────
+#  Collect unique dates in test period ─
 log.info("Scanning unique dates for 2023–2024 …")
 date_df = pd.read_parquet(
     DATA_PATH,
@@ -153,12 +153,12 @@ del date_df
 gc.collect()
 log.info("Total dates to process: %d", len(all_dates))
 
-# ── PyArrow schemas for incremental writers ────────────────────────────────────
+#  PyArrow schemas for incremental writers 
 # Schemas are inferred from the first chunk; writers are opened lazily.
 _map_writer:    Optional[pq.ParquetWriter] = None
 _detail_writer: Optional[pq.ParquetWriter] = None
 
-# ── Chunked inference + SHAP ───────────────────────────────────────────────────
+#  Chunked inference + SHAP ─
 n_chunks = int(np.ceil(len(all_dates) / DATE_CHUNK))
 
 for i in range(n_chunks):
@@ -168,7 +168,7 @@ for i in range(n_chunks):
              pd.Timestamp(chunk_dates[0]).date(),
              pd.Timestamp(chunk_dates[-1]).date())
 
-    # ── Load feature data ──────────────────────────────────────────────────
+    #  Load feature data 
     read_cols = ["date", "grid_id", "fire"] + FEATURE_COLS
     chunk_df = pd.read_parquet(
         DATA_PATH,
@@ -186,12 +186,12 @@ for i in range(n_chunks):
     X = chunk_df[FEATURE_COLS].values   # numpy (n, 47), float32
 
     log.info("Done casting type...")
-    # ── XGBoost inference ──────────────────────────────────────────────────
+    #  XGBoost inference 
     dmat = xgb.DMatrix(X, feature_names=FEATURE_COLS)
     chunk_df["fire_prob"] = model.predict(dmat).astype("float32")
     log.info("Done predicting...")
 
-    # ── SHAP contribs (separate pass) ─────────────────────────────────────
+    #  SHAP contribs (separate pass) ─
     # pred_contribs=True returns shape (n_rows, n_features + 1)
     contribs = model.predict(dmat, pred_contribs=True,
                              approx_contribs=True)             # path-based approx: ~5–10× faster
@@ -212,7 +212,7 @@ for i in range(n_chunks):
     chunk_df["dominant_factor"] = compute_dominant_factor(chunk_df)
 
     log.info("Done computing dominant_factor...")
-    # ── Build map rows (merge coords inline) ───────────────────────────────
+    #  Build map rows (merge coords inline) ─
     map_chunk = chunk_df[MAP_COLS].merge(coords, on="grid_id", how="left")
     map_chunk["date"]      = pd.to_datetime(map_chunk["date"])
     map_chunk["fire_prob"] = map_chunk["fire_prob"].astype("float32")
@@ -220,7 +220,7 @@ for i in range(n_chunks):
     map_chunk.sort_values(["date", "grid_id"], inplace=True)
 
     log.info("Done building map...")
-    # ── Build detail rows ──────────────────────────────────────────────────
+    #  Build detail rows 
     detail_chunk = chunk_df[DETAIL_COLS].copy()
     detail_chunk["date"]      = pd.to_datetime(detail_chunk["date"])
     detail_chunk["fire_prob"] = detail_chunk["fire_prob"].astype("float32")
@@ -235,7 +235,7 @@ for i in range(n_chunks):
     detail_chunk.sort_values(["grid_id", "date"], inplace=True)
 
     log.info("Done building detail...")
-    # ── Write chunks directly to parquet (no list accumulation) ───────────
+    #  Write chunks directly to parquet (no list accumulation) ─
     map_table    = pa.Table.from_pandas(map_chunk,    preserve_index=False)
     detail_table = pa.Table.from_pandas(detail_chunk, preserve_index=False)
 
@@ -253,7 +253,7 @@ for i in range(n_chunks):
     del map_chunk, detail_chunk, map_table, detail_table
     gc.collect()
 
-# ── Finalise parquet files ─────────────────────────────────────────────────────
+#  Finalise parquet files ─
 if _map_writer:
     _map_writer.close()
     log.info("Map file written → %s", MAP_PATH)

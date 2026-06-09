@@ -6,12 +6,12 @@ import { useFireStore } from '../store/useFireStore';
 import MapLegend from './MapLegend';
 import type { GridProperties, ProbMapCollection } from '../types';
 
-// ── Fire probability thresholds ────────────────────────────────────────────────
+//  Fire probability thresholds
 const THRESH_HIGH   = 0.9;
 const THRESH_MEDIUM = 0.6;
 const THRESH_LOW    = 0.3;
 
-// ── Color helpers ──────────────────────────────────────────────────────────────
+//  Color helpers
 function getProbColor(prob: number): string {
   if (prob > THRESH_HIGH)   return '#E74C3C';
   if (prob > THRESH_MEDIUM) return '#E67E22';
@@ -48,7 +48,7 @@ function getCellStyle(
   };
 }
 
-// ── Grid canvas layer ──────────────────────────────────────────────────────────
+//  Grid canvas layer
 function GridCanvasLayer() {
   const map = useMap();
   const layerRef = useRef<L.GeoJSON | null>(null);
@@ -133,7 +133,7 @@ function GridCanvasLayer() {
   return null;
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+//  Main component ─
 export default function MapView() {
   return (
     <div className="w-full h-full relative">

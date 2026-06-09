@@ -1,0 +1,84 @@
+Phân tích 52 features cho ConvLSTM
+
+  Vấn đề cốt lõi: ConvLSTM ≠ XGBoost về cách dùng features
+
+  XGBoost xử lý từng row độc lập, không biết neighbors → cần feature engineered (neighbor_fire_7d, vpd_neighbor_1d...) để bù đắp.
+
+  ConvLSTM dùng convolution → tự động học mối quan hệ không gian giữa các pixel lân cận, và recurrent → tự học temporal
+  dependency. Nhiều features của XGBoost trở thành thông tin bị lặp.
+
+  ---
+  Nhóm 1 — Loại bỏ hoàn toàn: Pathway features (5 cols)
+
+  is_pathway_p1, is_pathway_p2, is_pathway_p3,
+  human_pathway_score, human_signal_strength
+
+  Lý do loại: Đây là features derived từ các features đã có trong input:
+  - is_pathway_p1 = burn_season_flag AND days_since_harvest < 30
+  - is_pathway_p2 = deforestation_lag_1y > 1.5 AND fire_count_prev_year > 0
+  - is_pathway_p3 = fire_count_prev_year > 1 AND burn_season_flag
+
+  XGBoost cần những features này vì mỗi split chỉ xét 1 feature tại một thời điểm — không tự kết hợp điều kiện AND được. ConvLSTM
+  dùng activation phi tuyến qua nhiều lớp → tự học các tổ hợp này rồi. Đưa pathway features vào = model thấy cùng tín hiệu hai lần
+   → gradient bị pha loãng, training khó hội tụ hơn.
+
+  ---
+  Nhóm 2 — Loại bỏ: XGBoost interaction features (3 cols)
+
+  vpd_neighbor_1d, vpd_fire_lag_1, neighbor_fire_7d
+
+  Lý do loại:
+  - vpd_neighbor_1d, vpd_fire_lag_1: Đây là cross-feature interactions được tạo thủ công cho XGBoost. ConvLSTM dùng convolution
+  3×3 kernel → tự capture spatial correlation giữa VPD và fire ở neighboring pixels.
+  - neighbor_fire_7d: ConvLSTM với seq_len=7 đã thấy trực tiếp 7 ngày liên tiếp của bản đồ lửa → neighbor_fire_7d là thông tin đã
+  được encode trong sequence.
+
+  ---
+  Nhóm 3 — Loại bỏ: Rolling windows dư thừa (2 cols)
+
+  rain_30d_sum, vpd_30d_mean
+
+  Lý do loại: Đã có rain_14d_sum và vpd_14d_mean. Hai cặp này tương quan rất cao (>0.85). Với ConvLSTM seq_len=7, chuỗi thời gian
+  7 ngày đã cung cấp thông tin ngắn hạn trực tiếp. Giữ 30d-window không thêm thông tin độc lập mà chỉ tăng multicollinearity.
+
+  ---
+  Nhóm 4 — Loại bỏ: Vegetation chồng lặp (4 cols)
+
+  ndwi, ndii, ndvi_std, has_s2
+
+  Lý do:
+  - ndwi và ndii đo lường độ ẩm thực vật, tương quan rất cao với nbr. Giữ nbr là đủ.
+  - ndvi_std: độ lệch chuẩn spatial của NDVI — thông tin này ConvLSTM đã học được qua spatial convolution.
+  - has_s2 đặc biệt nguy hiểm: khi has_s2=0, tất cả vegetation features (ndvi, nbr...) bằng 0 hoặc được impute. Model sẽ học
+  pattern sai: "ndvi=0 → fire" trong khi thực tế chỉ là data thiếu.
+
+  ---
+  Nhóm 5 — Loại bỏ: Fire history dư thừa (2 cols)
+
+  fire_count_prev_3y, fire_freq_5y
+
+  Lý do: Tương quan rất cao với fire_count_prev_year. Ba features này đo cùng một khái niệm (lịch sử cháy) ở các khung thời gian
+  khác nhau. Giữ fire_count_prev_year là đủ.
+
+  ---
+  Nhóm 6 — Loại bỏ: Human activity dư thừa (5 cols)
+
+  lulc_class, cropland_frac_1km, dist_powerline_km,
+  nightlight_mean, deforestation_lag_1y
+
+  Lý do:
+  - lulc_class: Nguy hiểm — là biến categorical (1, 2, 3...) nhưng đang được đưa vào như continuous. ConvLSTM sẽ học khoảng cách
+  sai: "class 4 gấp đôi class 2" → gây nhiễu thực sự.
+  - cropland_frac_1km: Chồng lặp với dist_settlement_km và tree_cover_pct.
+  - dist_powerline_km: Sparse, ít biến thiên, ít liên quan đến fire spread.
+  - nightlight_mean: Proxy của đô thị hóa, đã được pop_density và dist_settlement_km capture tốt hơn.
+  - deforestation_lag_1y: Biến hàng năm, gần như static. Xu hướng deforestation đã được ndvi và nbr phản ánh gián tiếp qua
+  temporal sequence.
+
+  ---
+  Nhóm 7 — Loại bỏ: Terrain phụ (2 cols)
+
+  dem_stdev, slp_stdev
+
+  Giữ dem_mean và slp_mean. dem_stdev và slp_stdev tương quan cao với slp_mean (địa hình dốc thì stdev cao) và là quasi-static →
+  không đóng góp vào temporal learning.

@@ -23,7 +23,7 @@ import pyarrow.parquet as pq
 from scipy.sparse import lil_matrix
 from tqdm import tqdm, trange
 
-# ── Paths ──────────────────────────────────────────────────────────────────
+#  Paths 
 BASE      = Path(__file__).resolve().parent
 RAW       = BASE / "raw_data"
 VEG_DIR   = RAW / "veg_indices"
@@ -44,7 +44,7 @@ VEG_RENAME  = {
 }
 VEG_FILL_COLS = ["ndvi", "ndvi_std", "ndwi", "nbr", "ndii"]
 
-# ── 1. Fire label lookup ───────────────────────────────────────────────────
+#  1. Fire label lookup ─
 print("1. Loading FIRMS fire labels...")
 fire_df  = pd.read_csv(RAW / "daklak_firms.csv", parse_dates=["date"])
 fire_key = set(zip(fire_df.grid_id, fire_df.date))
@@ -52,15 +52,38 @@ del fire_df
 gc.collect()
 print(f"   {len(fire_key):,} fire events")
 
-# ── 2. DEM ─────────────────────────────────────────────────────────────────
+#  2. DEM ─
 print("2. Loading DEM...")
 dem = pd.read_csv(RAW / "daklak_dem.csv")[
     ["grid_id", "dem_mean", "dem_stdev", "dem_min", "dem_max", "slp_mean", "slp_stdev"]
 ]
 dem["grid_id"] = dem["grid_id"].astype("int32")
+# Resolve dem_mean, dem_min negative
+
+# Fix sentinel values (-32767, -6423...) trong dem_mean và dem_min
+n_bad_mean = (dem["dem_mean"] < 0).sum()
+n_bad_min  = (dem["dem_min"]  < 0).sum()
+
+# Set giá trị âm về NaN
+dem.loc[dem["dem_mean"] < 0, "dem_mean"] = np.nan
+dem.loc[dem["dem_min"]  < 0, "dem_min"]  = np.nan
+
+mask_mean_nan = dem["dem_mean"].isna() & dem["dem_max"].notna() & (dem["dem_max"] >= 0)
+dem.loc[mask_mean_nan, "dem_mean"] = dem.loc[mask_mean_nan, "dem_max"]
+
+mask_min_nan = dem["dem_min"].isna() & dem["dem_max"].notna() & (dem["dem_max"] >= 0)
+dem.loc[mask_min_nan, "dem_min"] = dem.loc[mask_min_nan, "dem_max"]
+if dem["dem_mean"].isna().any():
+    dem["dem_mean"] = dem[("dem_"
+                           "mean")].fillna(dem["dem_mean"].median())
+if dem["dem_min"].isna().any():
+    dem["dem_min"] = dem["dem_min"].fillna(dem["dem_min"].median())
+# Đảm bảo dem_min ≤ dem_mean ≤ dem_max (consistency)
+dem["dem_min"]  = np.minimum(dem["dem_min"],  dem["dem_mean"])
+dem["dem_mean"] = np.minimum(dem["dem_mean"], dem["dem_max"])
 print(f"   {len(dem):,} grid cells")
 
-# ── 3. Veg indices ─────────────────────────────────────────────────────────
+#  3. Veg indices ─
 print("3. Loading veg indices (2015–2024)...")
 veg_dfs = []
 for year in range(2015, 2025):
@@ -86,7 +109,7 @@ del veg_dfs, df_v
 gc.collect()
 print(f"   Total: {len(veg):,} veg rows")
 
-# ── 4. Adjacency matrix ────────────────────────────────────────────────────
+#  4. Adjacency matrix 
 print("4. Building adjacency matrix...")
 with open(ADJ_PATH, "rb") as f:
     adjacency = pickle.load(f)
@@ -104,7 +127,7 @@ for gid, neighbors in adjacency.items():
 A = A.tocsr()
 print(f"   {n} grid cells in adjacency")
 
-# ── 4b. Pre-load human static features as dicts (grid_id → value) ─────────
+#  4b. Pre-load human static features as dicts (grid_id → value) ─
 # dict.map() on a Series allocates only the output column, no merge copy.
 print("4b. Pre-loading human static feature dicts...")
 
@@ -127,7 +150,7 @@ del osm, lulc
 gc.collect()
 print(f"   {len(STATIC_MAPS)} static feature dicts ready")
 
-# ── 4c. Pre-load year-varying features as MultiIndex Series ───────────────
+#  4c. Pre-load year-varying features as MultiIndex Series ─
 # reindex() on a MultiIndex avoids creating a merge copy of the 68M df.
 print("4c. Pre-loading year-varying feature Series...")
 
@@ -144,7 +167,7 @@ del defor, ntl
 gc.collect()
 print("   deforestation + nightlight + pop series ready")
 
-# ── 5. Chunked read ERA5 → fire + DEM + veg + static human ────────────────
+#  5. Chunked read ERA5 → fire + DEM + veg + static human 
 print("\n5. Reading ERA5 and merging fire / DEM / veg + static human features...")
 chunks = []
 
@@ -178,7 +201,7 @@ for i, chunk in enumerate(pd.read_csv(
 del fire_key, dem, veg, STATIC_MAPS
 gc.collect()
 
-# ── 6. Concat & sort ───────────────────────────────────────────────────────
+#  6. Concat & sort ─
 print("\n6. Concatenating and sorting...")
 df = pd.concat(chunks, ignore_index=True)
 del chunks
@@ -194,7 +217,7 @@ print(f"   {len(df):,} rows total  |  {len(df.columns)} columns")
 
 g = df.groupby("grid_id", group_keys=False)
 
-# ── 7. Rolling features ────────────────────────────────────────────────────
+#  7. Rolling features 
 print("7. Rolling features...")
 for window in [14, 30]:
     df[f"rain_{window}d_sum"] = (
@@ -206,12 +229,12 @@ for window in [14, 30]:
         .astype("float32")
     )
 
-# ── 8. Lag features ────────────────────────────────────────────────────────
+#  8. Lag features 
 print("8. Fire lag features...")
 for lag in [1, 3, 7]:
     df[f"fire_lag_{lag}"] = g["fire"].shift(lag).fillna(0).astype("int8")
 
-# ── 9. Neighbor fire features ──────────────────────────────────────────────
+#  9. Neighbor fire features 
 print("9. Neighbor fire features (slow step)...")
 df["neighbor_count"] = (
     df["grid_id"].map({gid: len(nb) for gid, nb in adjacency.items()})
@@ -245,7 +268,7 @@ df["neighbor_fire_7d"] = df["neighbor_fire_7d"].astype("float32")
 del df["fire_lag_7"]
 gc.collect()
 
-# ── 10. Interaction & seasonal features ───────────────────────────────────
+#  10. Interaction & seasonal features ─
 print("10. Interaction & seasonal features...")
 df["vpd_neighbor_1d"] = (df["vpd"] * df["neighbor_fire_1d"]).astype("float32")
 df["vpd_fire_lag_1"]  = (df["vpd"] * df["fire_lag_1"]).astype("float32")
@@ -256,7 +279,7 @@ df["cos_doy"] = np.cos(2 * np.pi * doy / 365).astype("float32")
 del doy
 gc.collect()
 
-# ── 11. Veg: has_s2 + seasonal ffill + delta features ─────────────────────
+#  11. Veg forward-fill & delta features ─
 print("11. Veg forward-fill & delta features...")
 df["has_s2"] = df["ndvi"].notna().astype("int8")
 
@@ -270,6 +293,7 @@ for col in VEG_FILL_COLS:
 del dry_mask
 gc.collect()
 
+# Tính delta indices
 df["delta_ndvi_14d"] = (
     df.groupby("grid_id")["ndvi"].transform(lambda s: s.shift(14) - s)
 ).astype("float32")
@@ -277,23 +301,27 @@ df["delta_nbr_7d"] = (
     df.groupby("grid_id")["nbr"].transform(lambda s: s.shift(7) - s)
 ).astype("float32")
 
+# Clip delta về [-1, 1] (loại bỏ outlier do làm tròn float)
+df["delta_ndvi_14d"] = df["delta_ndvi_14d"].clip(-1, 1)
+df["delta_nbr_7d"]   = df["delta_nbr_7d"].clip(-1, 1)
+
+# Fill NaN
 for col in VEG_FILL_COLS + ["delta_ndvi_14d", "delta_nbr_7d"]:
     if df[col].isna().any():
         df[col] = df[col].fillna(df[col].median()).astype("float32")
 
 print(f"   NDVI coverage: {(df['has_s2'] == 1).mean():.1%}")
-
-# ── 12. Final dtype pass ───────────────────────────────────────────────────
+#  12. Final dtype pass ─
 for col in df.columns:
     if df[col].dtype == "float64":
         df[col] = df[col].astype("float32")
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ── 12b. Human Activity Features — year-varying + fire history ───────────────
+#  12b. Human Activity Features — year-varying + fire history ─
 # ══════════════════════════════════════════════════════════════════════════════
 print("\n12b. Human activity features — year-varying + fire history...")
 
-# ── Year-varying via MultiIndex reindex (no merge copy) ───────────────────
+#  Year-varying via MultiIndex reindex (no merge copy) ─
 print("   [a] deforestation_lag_1y / nightlight_mean / pop_density ...")
 _year = df["date"].dt.year.astype("int32")
 _idx  = pd.MultiIndex.from_arrays([df["grid_id"].values, _year.values],
@@ -301,12 +329,13 @@ _idx  = pd.MultiIndex.from_arrays([df["grid_id"].values, _year.values],
 
 df["deforestation_lag_1y"] = defor_series.reindex(_idx).fillna(0).values.astype("float32")
 df["nightlight_mean"]      = ntl_mean_series.reindex(_idx).fillna(0).values.astype("float32")
+df["nightlight_mean"]      = df["nightlight_mean"].clip(lower=0)
 df["pop_density"]          = ntl_pop_series.reindex(_idx).fillna(0).values.astype("float32")
 
 del _year, _idx, defor_series, ntl_mean_series, ntl_pop_series
 gc.collect()
 
-# ── Fire history features recomputed from fire column ─────────────────────
+#  Fire history features recomputed from fire column ─
 # Avoids loading the 68M-row fire_history.parquet entirely.
 print("   [b] burn_season_flag / days_since_harvest (date arithmetic) ...")
 
@@ -377,11 +406,12 @@ _last_fire  = _shifted.groupby(df["grid_id"], sort=False).ffill()
 df["days_since_last_fire"] = (
     (df["date"] - _last_fire).dt.days.fillna(-1).astype("int16")
 )
+df.loc[df["days_since_last_fire"] == -1, "days_since_last_fire"] = 9999
 del _fire_dates, _shifted, _last_fire
 
 gc.collect()
 
-# ── Null check for all human columns ──────────────────────────────────────
+#  Null check for all human columns 
 HUMAN_COLS = [
     "dist_road_km", "dist_settlement_km", "dist_forest_edge_km", "dist_powerline_km",
     "lulc_class", "cropland_frac_1km", "tree_cover_pct",
@@ -399,7 +429,7 @@ if null_counts.any():
 print(f"   Total nulls in human cols: {null_counts.sum()}")
 print(f"   Total columns: {len(df.columns)}")
 
-# ── 13. Incremental parquet write ─────────────────────────────────────────
+#  13. Incremental parquet write ─
 print(f"\n13. Saving to {OUT_PATH} ...")
 total_rows   = len(df)
 total_chunks = math.ceil(total_rows / SAVE_CHUNK)

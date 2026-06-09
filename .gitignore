@@ -30,6 +30,7 @@ replay_pid*
 *.tif
 *.npy
 *.pbf
+*.joblib
 
 package-lock.json
 

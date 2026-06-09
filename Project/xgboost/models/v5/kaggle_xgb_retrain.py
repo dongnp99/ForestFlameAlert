@@ -74,7 +74,7 @@ def load_split(filters):
             df[col] = df[col].astype("float32")
     return df
 
-# ── Helpers ──────────────────────────────────────────────────────────────────────
+#  Helpers 
 
 def compute_pathways(df):
     p1 = (
@@ -110,7 +110,7 @@ def compute_sample_weights(df):
     weights[fire] = weights_map[score[fire]]
     return weights
 
-# ── Train ──────────────────────────────────────────────────────────────────────
+#  Train 
 logging.info("Loading train set...")
 train_df = load_split([("date", "<=", pd.Timestamp(TRAIN_END_DATE))])
 logging.info("Train size: %s  |  fire rate: %.6f", f"{len(train_df):,}", train_df["fire"].mean())
@@ -139,7 +139,7 @@ dtrain  = xgb.QuantileDMatrix(train_df, y_train, weight=w_train)
 del train_df, y_train, w_train
 gc.collect()
 
-# ── Val ────────────────────────────────────────────────────────────────────────
+#  Val 
 logging.info("Loading val set...")
 val_df = load_split([
     ("date", ">",  pd.Timestamp(TRAIN_END_DATE)),
@@ -159,7 +159,7 @@ dval  = xgb.QuantileDMatrix(val_df, y_val, ref=dtrain)
 del val_df
 gc.collect()
 
-# ── Test ───────────────────────────────────────────────────────────────────────
+#  Test ─
 logging.info("Loading test set...")
 test_df = load_split([("date", ">", pd.Timestamp(VAL_END_DATE))])
 logging.info("Test size: %s", f"{len(test_df):,}")
@@ -180,22 +180,22 @@ gc.collect()
 # =============================
 
 best_params = {
-    "max_depth":        7,
-    "min_child_weight": 9,
-    "learning_rate":    0.07663559850345975,
-    "subsample":        0.8556253267078845,
-    "colsample_bytree": 0.5009065181704361,
-    "gamma":            1.481068503057549,
-    "reg_lambda":       3.657104262783736,
-    "reg_alpha":        7.980994519859137,
-    "scale_pos_weight": 662.4909167188719,
-    "objective":        "binary:logistic",
-    "eval_metric":      "aucpr",
-    "tree_method":      "hist",
-    "device":           "cuda",
-    "random_state":     RANDOM_STATE,
-    "max_bin":          256,
-    "grow_policy":      "lossguide",
+    "max_depth": 7,
+    "min_child_weight": 4,
+    "learning_rate": 0.0539607973224254,
+    "subsample": 0.7024730380408164,
+    "colsample_bytree": 0.5389294905851454,
+    "gamma": 0.7378469664222608,
+    "reg_lambda": 6.1196694936818465,
+    "reg_alpha": 6.914467461368069,
+    "scale_pos_weight": 488.8612628791841,
+    "objective": "binary:logistic",
+    "eval_metric": "aucpr",
+    "tree_method": "hist",
+    "device": "cuda",
+    "max_bin": 256,
+    "grow_policy": "lossguide",
+    "random_state": 42,
 }
 
 # =============================

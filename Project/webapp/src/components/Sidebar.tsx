@@ -9,7 +9,6 @@ const TABS = [
   { id: 'risk',      label: 'Phân tích rủi ro' },
   { id: 'history',   label: 'Lịch sử 30 ngày' },
   { id: 'neighbors', label: 'So sánh lân cận' },
-  { id: 'alerts',    label: 'Cảnh báo & cháy' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];

@@ -60,7 +60,7 @@ def compute_days_since_last_fire(group: pd.DataFrame) -> pd.Series:
 
 
 def main() -> None:
-    # ── 1. Load only needed columns ───────────────────────────────────────────
+    #  1. Load only needed columns 
     print("[1/6] Loading dataset ...")
     df = pd.read_parquet(
         DATASET_PATH,
@@ -72,15 +72,15 @@ def main() -> None:
     print(f"  Rows: {len(df):,}  |  grids: {df['grid_id'].nunique():,}  |  "
           f"years: {df['year'].min()}-{df['year'].max()}")
 
-    # ── 2. burn_season_flag ───────────────────────────────────────────────────
+    #  2. burn_season_flag
     print("[2/6] burn_season_flag ...")
     df["burn_season_flag"] = df["date"].dt.month.isin([1, 2, 3, 4]).astype("int8")
 
-    # ── 3. days_since_harvest ─────────────────────────────────────────────────
+    #  3. days_since_harvest
     print("[3/6] days_since_harvest ...")
     df["days_since_harvest"] = df["date"].apply(days_since_harvest).astype("int16")
 
-    # ── 4. Annual fire counts per grid ────────────────────────────────────────
+    #  4. Annual fire counts per grid 
     print("[4/6] Annual fire count features ...")
 
     annual = (
@@ -121,14 +121,14 @@ def main() -> None:
                   on=["grid_id", "year"], how="left")
     df["fire_freq_5y"] = df["fire_freq_5y"].fillna(0).astype("float32")
 
-    # ── 5. days_since_last_fire ───────────────────────────────────────────────
+    #  5. days_since_last_fire
     print("[5/6] days_since_last_fire (row-by-row per grid, may take a minute) ...")
     df["days_since_last_fire"] = (
         df.groupby("grid_id", group_keys=False)
         .apply(compute_days_since_last_fire, include_groups=False)
     )
 
-    # ── 6. Save ───────────────────────────────────────────────────────────────
+    #  6. Save
     print("[6/6] Saving ...")
     FEATURE_COLS = [
         "grid_id", "date",

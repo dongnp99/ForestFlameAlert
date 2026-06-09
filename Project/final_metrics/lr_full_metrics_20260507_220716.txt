@@ -1,0 +1,18 @@
+Logistic Regression — Full Evaluation
+============================================================
+Model: logistic_regression_20260507_220716.joblib
+Threshold (F2-optimal on val): 1.0000
+
+[Standard]
+  AUC-PR    = 0.0118
+  AUC-ROC   = 0.8596
+  Precision = 0.0236
+  Recall    = 0.1414
+  F1        = 0.0405
+  F2        = 0.0708
+  TP=2,319  FP=95,937  FN=14,084  TN=13,632,653
+
+[Domain — K=5%, alpha=0.7]
+  Recall@P_min(5%) = 0.0000  (prec=1.0000, thresh=1.0)
+  PEI@5%           = 8.80  (recall_at_k=0.4401, fires=7219/16403)
+  FRES@5%          = 0.3112  (recall=0.4401, prec=0.0105)

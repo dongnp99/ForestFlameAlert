@@ -1,0 +1,21 @@
+run_id         : 20260428_1418
+device         : cuda
+n_features     : 28
+best_epoch     : 13
+val_auc_pr     : 0.015274
+val_recall     : 0.163226
+--- TEST SET ---
+auc_pr         : 0.016226149472748818
+auc_roc        : 0.9055786417774997
+threshold      : 0.7213810086250305
+recall         : 0.1379899865672622
+precision      : 0.02961681606122168
+f1             : 0.048766801138470206
+csi            : 0.024992811801912616
+fpr            : 0.005416204698130408
+tp             : 2260
+fp             : 74048
+fn             : 14118
+tn             : 13597518
+model_cfg      : {'seq_len': 7, 'n_feat': 28, 'filters': [64, 32], 'kernel': 3, 'dropout': 0.4, 'fl_gamma': 2.0, 'fl_alpha': 0.8, 'tv_alpha': 0.3, 'tv_beta': 0.7, 'loss_focal_w': 0.5, 'loss_tversky_w': 0.5, 'lr': 0.0003, 'clipnorm': 1.0, 'weight_decay': 0.0001, 'H': 137, 'W': 138}
+train_cfg      : {'epochs': 200, 'batch_size': 4, 'accum_steps': 4, 'patience': 30, 'lr_patience': 8, 'lr_factor': 0.5, 'min_lr': 1e-06, 'num_workers': 2}

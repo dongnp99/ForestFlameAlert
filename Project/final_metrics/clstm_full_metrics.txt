@@ -1,0 +1,18 @@
+ConvLSTM — Full Evaluation
+============================================================
+Model dir: model_20260428_1418
+Threshold (F2-optimal on val): 0.7034
+
+[Standard]
+  AUC-PR    = 0.0162
+  AUC-ROC   = 0.9056
+  Precision = 0.0259
+  Recall    = 0.2149
+  F1        = 0.0463
+  F2        = 0.0874
+  TP=3,520  FP=132,238  FN=12,858  TN=13,539,328
+
+[Domain — K=5%, alpha=0.7]
+  Recall@P_min(5%) = 0.0027  (prec=0.0500, thresh=0.8018298745155334)
+  PEI@5%           = 10.82  (recall_at_k=0.5408, fires=8858/16378)
+  FRES@5%          = 0.3825  (recall=0.5408, prec=0.0129)

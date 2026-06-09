@@ -92,7 +92,7 @@ for f in nc_files:
         "tmean": t.resample(time="1D").mean(),
         "rh": rh.resample(time="1D").mean(),
         "wind": wind.resample(time="1D").mean(),
-        "rain": rain.resample(time="1D").sum(),
+        "rain": rain.resample(time="1D").max(),
         "vpd": vpd.resample(time="1D").mean()
     })
 

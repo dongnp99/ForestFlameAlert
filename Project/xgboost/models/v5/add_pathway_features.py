@@ -32,15 +32,15 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
+#  Paths 
 # Sửa lại cho đúng cấu trúc thư mục của bạn
 INPUT_PATH  = "../../../data/Daklak/final_inputs/daklak_final_dataset_v2_human.parquet"
 OUTPUT_PATH = "../../../data/Daklak/final_inputs/daklak_final_dataset_v3_pathways.parquet"
 
-# ── Chunk size (số dòng mỗi lần xử lý — giảm nếu OOM) ───────────────────────
+#  Chunk size (số dòng mỗi lần xử lý — giảm nếu OOM) ─
 CHUNK_SIZE = 5_000_000
 
-# ── Các cột cần để tính pathway features ──────────────────────────────────────
+#  Các cột cần để tính pathway features 
 PATHWAY_DEPS = [
     "burn_season_flag",
     "days_since_harvest",
@@ -68,7 +68,7 @@ SOFT_SIGNAL_COLS = [
 def compute_pathway_features(df: pd.DataFrame) -> pd.DataFrame:
     """Thêm 5 pathway-aware features vào df (in-place columns)."""
 
-    # ── Binary pathway indicators ──────────────────────────────────────────
+    #  Binary pathway indicators 
     # P1: post-harvest agricultural burning
     df["is_pathway_p1"] = (
         (df["burn_season_flag"] == 1)
@@ -87,12 +87,12 @@ def compute_pathway_features(df: pd.DataFrame) -> pd.DataFrame:
         & (df["burn_season_flag"] == 1)
     ).astype("int8")
 
-    # ── Aggregate score ────────────────────────────────────────────────────
+    #  Aggregate score 
     df["human_pathway_score"] = (
         df["is_pathway_p1"] + df["is_pathway_p2"] + df["is_pathway_p3"]
     ).astype("int8")
 
-    # ── Soft human signal (continuous, 0–1 range) ─────────────────────────
+    #  Soft human signal (continuous, 0–1 range) ─
     # Chuẩn hóa từng feature về [0, 1] rồi lấy trung bình.
     # Hướng: cao = nhiều tín hiệu nhân tạo hơn.
     signal = np.zeros(len(df), dtype="float32")

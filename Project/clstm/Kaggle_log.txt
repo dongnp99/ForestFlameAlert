@@ -1,0 +1,392 @@
+6.7s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.7s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.7s 3 0.00s - to python to disable frozen modules.
+6.7s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.3s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.3s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.3s 7 0.00s - to python to disable frozen modules.
+7.3s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+15.3s 9 PyTorch : 2.10.0+cu128
+15.3s 10 CUDA    : 12.8
+15.3s 11 Device  : cuda
+15.3s 12 Run ID  : 20260428_1418
+15.3s 13 Features: 28  |  Continuous to normalize: 21
+15.3s 14 ============================================================
+15.3s 15 BƯỚC 1: Build spatial splits từ parquet
+15.3s 16 ============================================================
+15.3s 17 
+15.3s 18 Loading /kaggle/input/datasets/flyingcow781/dataset-v3-new/daklak_final_dataset_v3_pathways.parquet...
+68.9s 19 Loaded: 68,687,359 rows, 31 columns
+68.9s 20 Fire rate: 0.1175%
+69.3s 21 
+69.3s 22 Grids: 18803  →  H=137, W=138
+69.7s 23 train: 2015-01-01 → 2021-12-31  (2557 ngày)
+69.7s 24 val  : 2022-01-01 → 2022-12-31  (365 ngày)
+69.7s 25 test : 2023-01-01 → 2024-12-31  (731 ngày)
+69.7s 26 
+69.7s 27 [train] Building 2557 days → 2550 sequences...
+137.4s 28 X=(2557, 137, 138, 28)  fire_rate=0.1212%
+137.4s 29 
+137.4s 30 [val] Building 365 days → 358 sequences...
+146.6s 31 X=(365, 137, 138, 28)  fire_rate=0.0824%
+146.6s 32 
+146.6s 33 [test] Building 731 days → 724 sequences...
+166.1s 34 X=(731, 137, 138, 28)  fire_rate=0.1187%
+166.1s 35 
+166.1s 36 Splits saved → /kaggle/working/splits
+166.1s 37 
+166.1s 38 ============================================================
+166.1s 39 BƯỚC 2: Normalize
+166.1s 40 ============================================================
+166.1s 41 
+166.1s 42 Fit mean/std trên train (21 continuous features)...
+189.9s 43 Saved norm_mean.npy + norm_std.npy
+189.9s 44 
+189.9s 45 Normalizing train (2557 days)...
+223.8s 46 mean(cont)=-1.198
+223.8s 47 
+223.8s 48 Normalizing val (365 days)...
+223.8s 49 mean(cont)=-0.618
+223.8s 50 
+223.8s 51 Normalizing test (731 days)...
+233.6s 52 mean(cont)=-0.896
+233.6s 53 
+233.6s 54 Normalize hoàn tất.
+234.0s 55 
+234.0s 56 ============================================================
+234.0s 57 BƯỚC 4: Training — run_id=20260428_1418
+234.0s 58 Device: cuda
+234.0s 59 GPU   : Tesla T4
+234.0s 60 VRAM  : 14.6 GB
+234.0s 61 ============================================================
+234.0s 62 
+234.0s 63 ============================================================
+234.0s 64 BƯỚC 3: Build DataLoaders
+234.0s 65 ============================================================
+234.0s 66 train: 2557 ngày → 2550 sequences
+234.0s 67 val  : 365 ngày → 358 sequences
+234.0s 68 test : 731 ngày → 724 sequences
+234.0s 69 
+234.0s 70 pos_weight: 824.0x  (n_pos=58,597)
+234.1s 71 Sequences with fire: 2468/2550
+235.0s 72 
+235.0s 73 Batch check: x=torch.Size([4, 7, 28, 137, 138])  y=torch.Size([4, 1, 137, 138])  fire_ratio=0.0569%
+235.0s 74 
+244.9s 75 Compiling model (inductor)... done
+244.9s 76 Total params: 342,706
+244.9s 77 pos_weight: 824.0x → capped at 200.0x
+244.9s 78 
+244.9s 79 Training (max 200 epochs, accum=4, effective_batch=16)...
+244.9s 80 
+253.5s 81 W0428 14:22:23.315000 23 torch/_inductor/utils.py:1679] [0/0] Not enough SMs to use max_autotune_gemm mode
+253.5s 82 
+253.5s 83 W0428 14:22:23.315000 23 torch/_inductor/utils.py:1679] [0/0] Not enough SMs to use max_autotune_gemm mode
+294.0s 84 [1/200] step 159/637  loss=0.5282
+311.2s 85 [1/200] step 318/637  loss=0.5248
+328.6s 86 [1/200] step 477/637  loss=0.5230
+346.3s 87 [1/200] step 636/637  loss=0.5219
+384.1s 88 pred: min=0.0280 max=0.8994 mean=0.290410 p99=0.7388
+384.1s 89 Epoch   1 | loss=0.5219 | val_loss=0.5167 | auc_pr=0.0124 | recall=0.1087 | thresh=0.781 | lr=3.00e-04
+384.1s 90 ✓ Best saved  (auc_pr=0.0124  recall=0.1087  thresh=0.781)
+401.8s 91 [2/200] step 159/637  loss=0.5181
+419.8s 92 [2/200] step 318/637  loss=0.5178
+438.0s 93 [2/200] step 477/637  loss=0.5180
+456.3s 94 [2/200] step 636/637  loss=0.5178
+465.2s 95 pred: min=0.0207 max=0.8931 mean=0.311971 p99=0.7266
+465.2s 96 Epoch   2 | loss=0.5178 | val_loss=0.5151 | auc_pr=0.0137 | recall=0.1112 | thresh=0.764 | lr=3.00e-04
+465.2s 97 ✓ Best saved  (auc_pr=0.0137  recall=0.1112  thresh=0.764)
+483.8s 98 [3/200] step 159/637  loss=0.5172
+502.6s 99 [3/200] step 318/637  loss=0.5170
+521.7s 100 [3/200] step 477/637  loss=0.5168
+541.0s 101 [3/200] step 636/637  loss=0.5166
+549.8s 102 pred: min=0.0026 max=0.9106 mean=0.263956 p99=0.7515
+549.8s 103 Epoch   3 | loss=0.5166 | val_loss=0.5149 | auc_pr=0.0139 | recall=0.0963 | thresh=0.790 | lr=3.00e-04
+549.8s 104 ✓ Best saved  (auc_pr=0.0139  recall=0.0963  thresh=0.790)
+569.1s 105 [4/200] step 159/637  loss=0.5171
+588.4s 106 [4/200] step 318/637  loss=0.5168
+607.7s 107 [4/200] step 477/637  loss=0.5166
+627.2s 108 [4/200] step 636/637  loss=0.5165
+636.1s 109 pred: min=0.0018 max=0.8960 mean=0.262962 p99=0.7383
+636.1s 110 Epoch   4 | loss=0.5165 | val_loss=0.5142 | auc_pr=0.0139 | recall=0.1188 | thresh=0.774 | lr=3.00e-04
+636.1s 111 ✓ Best saved  (auc_pr=0.0139  recall=0.1188  thresh=0.774)
+655.5s 112 [5/200] step 159/637  loss=0.5158
+675.0s 113 [5/200] step 318/637  loss=0.5160
+694.5s 114 [5/200] step 477/637  loss=0.5161
+714.2s 115 [5/200] step 636/637  loss=0.5159
+723.2s 116 pred: min=0.0010 max=0.9092 mean=0.283173 p99=0.7349
+723.2s 117 Epoch   5 | loss=0.5159 | val_loss=0.5138 | auc_pr=0.0138 | recall=0.1364 | thresh=0.763 | lr=3.00e-04
+742.8s 118 [6/200] step 159/637  loss=0.5156
+762.4s 119 [6/200] step 318/637  loss=0.5156
+782.2s 120 [6/200] step 477/637  loss=0.5155
+801.9s 121 [6/200] step 636/637  loss=0.5153
+810.8s 122 pred: min=0.0007 max=0.8975 mean=0.269743 p99=0.7334
+810.8s 123 Epoch   6 | loss=0.5153 | val_loss=0.5135 | auc_pr=0.0140 | recall=0.1057 | thresh=0.777 | lr=3.00e-04
+810.8s 124 ✓ Best saved  (auc_pr=0.0140  recall=0.1057  thresh=0.777)
+830.2s 125 [7/200] step 159/637  loss=0.5143
+849.6s 126 [7/200] step 318/637  loss=0.5143
+869.0s 127 [7/200] step 477/637  loss=0.5143
+888.5s 128 [7/200] step 636/637  loss=0.5144
+897.5s 129 pred: min=0.0003 max=0.8862 mean=0.244824 p99=0.7275
+897.5s 130 Epoch   7 | loss=0.5144 | val_loss=0.5148 | auc_pr=0.0144 | recall=0.1362 | thresh=0.762 | lr=3.00e-04
+897.5s 131 ✓ Best saved  (auc_pr=0.0144  recall=0.1362  thresh=0.762)
+916.8s 132 [8/200] step 159/637  loss=0.5153
+936.1s 133 [8/200] step 318/637  loss=0.5148
+955.6s 134 [8/200] step 477/637  loss=0.5146
+975.1s 135 [8/200] step 636/637  loss=0.5147
+984.1s 136 pred: min=0.0002 max=0.8760 mean=0.256104 p99=0.7227
+984.1s 137 Epoch   8 | loss=0.5147 | val_loss=0.5137 | auc_pr=0.0143 | recall=0.1272 | thresh=0.761 | lr=3.00e-04
+1003.5s 138 [9/200] step 159/637  loss=0.5146
+1022.9s 139 [9/200] step 318/637  loss=0.5143
+1042.5s 140 [9/200] step 477/637  loss=0.5146
+1062.1s 141 [9/200] step 636/637  loss=0.5143
+1070.9s 142 pred: min=0.0001 max=0.8447 mean=0.235577 p99=0.6934
+1070.9s 143 Epoch   9 | loss=0.5143 | val_loss=0.5137 | auc_pr=0.0146 | recall=0.1046 | thresh=0.732 | lr=3.00e-04
+1070.9s 144 ✓ Best saved  (auc_pr=0.0146  recall=0.1046  thresh=0.732)
+1090.2s 145 [10/200] step 159/637  loss=0.5135
+1109.6s 146 [10/200] step 318/637  loss=0.5140
+1129.1s 147 [10/200] step 477/637  loss=0.5141
+1148.6s 148 [10/200] step 636/637  loss=0.5140
+1157.8s 149 pred: min=0.0001 max=0.8740 mean=0.219046 p99=0.7124
+1157.8s 150 Epoch  10 | loss=0.5140 | val_loss=0.5146 | auc_pr=0.0146 | recall=0.0960 | thresh=0.752 | lr=3.00e-04  VRAM=0.1GB
+1157.8s 151 ✓ Best saved  (auc_pr=0.0146  recall=0.0960  thresh=0.752)
+1177.1s 152 [11/200] step 159/637  loss=0.5139
+1196.5s 153 [11/200] step 318/637  loss=0.5140
+1216.0s 154 [11/200] step 477/637  loss=0.5138
+1235.4s 155 [11/200] step 636/637  loss=0.5137
+1244.5s 156 pred: min=0.0000 max=0.8672 mean=0.264622 p99=0.7056
+1244.5s 157 Epoch  11 | loss=0.5137 | val_loss=0.5131 | auc_pr=0.0146 | recall=0.1195 | thresh=0.741 | lr=3.00e-04
+1244.5s 158 ✓ Best saved  (auc_pr=0.0146  recall=0.1195  thresh=0.741)
+1263.8s 159 [12/200] step 159/637  loss=0.5133
+1283.3s 160 [12/200] step 318/637  loss=0.5132
+1302.8s 161 [12/200] step 477/637  loss=0.5128
+1322.4s 162 [12/200] step 636/637  loss=0.5130
+1331.5s 163 pred: min=0.0000 max=0.8696 mean=0.235504 p99=0.6997
+1331.5s 164 Epoch  12 | loss=0.5130 | val_loss=0.5140 | auc_pr=0.0147 | recall=0.1001 | thresh=0.744 | lr=3.00e-04
+1331.5s 165 ✓ Best saved  (auc_pr=0.0147  recall=0.1001  thresh=0.744)
+1350.8s 166 [13/200] step 159/637  loss=0.5128
+1370.2s 167 [13/200] step 318/637  loss=0.5125
+1389.9s 168 [13/200] step 477/637  loss=0.5126
+1409.6s 169 [13/200] step 636/637  loss=0.5127
+1418.7s 170 pred: min=0.0000 max=0.8716 mean=0.216515 p99=0.6978
+1418.7s 171 Epoch  13 | loss=0.5127 | val_loss=0.5144 | auc_pr=0.0153 | recall=0.1632 | thresh=0.720 | lr=3.00e-04
+1418.7s 172 ✓ Best saved  (auc_pr=0.0153  recall=0.1632  thresh=0.720)
+1438.2s 173 [14/200] step 159/637  loss=0.5122
+1457.9s 174 [14/200] step 318/637  loss=0.5127
+1477.5s 175 [14/200] step 477/637  loss=0.5126
+1497.3s 176 [14/200] step 636/637  loss=0.5124
+1506.4s 177 pred: min=0.0000 max=0.8872 mean=0.189632 p99=0.7090
+1506.4s 178 Epoch  14 | loss=0.5124 | val_loss=0.5164 | auc_pr=0.0136 | recall=0.0872 | thresh=0.758 | lr=3.00e-04
+1525.9s 179 [15/200] step 159/637  loss=0.5127
+1545.5s 180 [15/200] step 318/637  loss=0.5125
+1565.2s 181 [15/200] step 477/637  loss=0.5127
+1585.0s 182 [15/200] step 636/637  loss=0.5125
+1594.1s 183 pred: min=0.0000 max=0.8755 mean=0.193378 p99=0.7207
+1594.1s 184 Epoch  15 | loss=0.5125 | val_loss=0.5161 | auc_pr=0.0142 | recall=0.0949 | thresh=0.764 | lr=3.00e-04
+1613.5s 185 [16/200] step 159/637  loss=0.5116
+1633.0s 186 [16/200] step 318/637  loss=0.5119
+1652.6s 187 [16/200] step 477/637  loss=0.5117
+1672.2s 188 [16/200] step 636/637  loss=0.5118
+1681.3s 189 pred: min=0.0000 max=0.8652 mean=0.233762 p99=0.7012
+1681.3s 190 Epoch  16 | loss=0.5118 | val_loss=0.5146 | auc_pr=0.0138 | recall=0.0912 | thresh=0.740 | lr=3.00e-04
+1700.7s 191 [17/200] step 159/637  loss=0.5115
+1720.4s 192 [17/200] step 318/637  loss=0.5116
+1740.1s 193 [17/200] step 477/637  loss=0.5119
+1759.8s 194 [17/200] step 636/637  loss=0.5120
+1768.9s 195 pred: min=0.0000 max=0.8745 mean=0.224461 p99=0.7310
+1768.9s 196 Epoch  17 | loss=0.5120 | val_loss=0.5153 | auc_pr=0.0144 | recall=0.1223 | thresh=0.762 | lr=3.00e-04
+1788.4s 197 [18/200] step 159/637  loss=0.5115
+1808.0s 198 [18/200] step 318/637  loss=0.5110
+1827.5s 199 [18/200] step 477/637  loss=0.5112
+1847.1s 200 [18/200] step 636/637  loss=0.5111
+1856.4s 201 pred: min=0.0000 max=0.8838 mean=0.199223 p99=0.7065
+1856.4s 202 Epoch  18 | loss=0.5111 | val_loss=0.5162 | auc_pr=0.0147 | recall=0.0955 | thresh=0.750 | lr=3.00e-04
+1875.8s 203 [19/200] step 159/637  loss=0.5109
+1895.4s 204 [19/200] step 318/637  loss=0.5106
+1915.0s 205 [19/200] step 477/637  loss=0.5104
+1934.8s 206 [19/200] step 636/637  loss=0.5106
+1943.7s 207 pred: min=0.0000 max=0.8882 mean=0.186312 p99=0.7363
+1943.7s 208 Epoch  19 | loss=0.5106 | val_loss=0.5182 | auc_pr=0.0140 | recall=0.1583 | thresh=0.762 | lr=3.00e-04
+1963.2s 209 [20/200] step 159/637  loss=0.5110
+1982.6s 210 [20/200] step 318/637  loss=0.5109
+2002.1s 211 [20/200] step 477/637  loss=0.5107
+2021.7s 212 [20/200] step 636/637  loss=0.5107
+2031.0s 213 pred: min=0.0000 max=0.8857 mean=0.172884 p99=0.7329
+2031.0s 214 Epoch  20 | loss=0.5106 | val_loss=0.5193 | auc_pr=0.0146 | recall=0.1255 | thresh=0.770 | lr=3.00e-04  VRAM=0.1GB
+2050.3s 215 [21/200] step 159/637  loss=0.5108
+2069.8s 216 [21/200] step 318/637  loss=0.5104
+2089.3s 217 [21/200] step 477/637  loss=0.5106
+2108.9s 218 [21/200] step 636/637  loss=0.5104
+2118.2s 219 pred: min=0.0000 max=0.8706 mean=0.178278 p99=0.7290
+2118.2s 220 Epoch  21 | loss=0.5104 | val_loss=0.5191 | auc_pr=0.0142 | recall=0.1025 | thresh=0.770 | lr=3.00e-04
+2137.5s 221 [22/200] step 159/637  loss=0.5094
+2157.0s 222 [22/200] step 318/637  loss=0.5100
+2176.6s 223 [22/200] step 477/637  loss=0.5098
+2196.2s 224 [22/200] step 636/637  loss=0.5098
+2205.3s 225 pred: min=0.0000 max=0.8892 mean=0.157174 p99=0.7246
+2205.3s 226 Epoch  22 | loss=0.5098 | val_loss=0.5219 | auc_pr=0.0145 | recall=0.1959 | thresh=0.742 | lr=1.50e-04
+2224.6s 227 [23/200] step 159/637  loss=0.5102
+2244.1s 228 [23/200] step 318/637  loss=0.5094
+2263.6s 229 [23/200] step 477/637  loss=0.5094
+2283.1s 230 [23/200] step 636/637  loss=0.5093
+2292.0s 231 pred: min=0.0000 max=0.8887 mean=0.162880 p99=0.7212
+2292.0s 232 Epoch  23 | loss=0.5093 | val_loss=0.5216 | auc_pr=0.0142 | recall=0.1163 | thresh=0.759 | lr=1.50e-04
+2311.5s 233 [24/200] step 159/637  loss=0.5086
+2331.0s 234 [24/200] step 318/637  loss=0.5088
+2350.5s 235 [24/200] step 477/637  loss=0.5085
+2370.2s 236 [24/200] step 636/637  loss=0.5086
+2379.3s 237 pred: min=0.0000 max=0.8999 mean=0.162418 p99=0.7295
+2379.3s 238 Epoch  24 | loss=0.5086 | val_loss=0.5232 | auc_pr=0.0139 | recall=0.0881 | thresh=0.773 | lr=1.50e-04
+2398.7s 239 [25/200] step 159/637  loss=0.5094
+2418.2s 240 [25/200] step 318/637  loss=0.5092
+2437.8s 241 [25/200] step 477/637  loss=0.5090
+2457.5s 242 [25/200] step 636/637  loss=0.5088
+2466.5s 243 pred: min=0.0000 max=0.8960 mean=0.150999 p99=0.7280
+2466.5s 244 Epoch  25 | loss=0.5088 | val_loss=0.5239 | auc_pr=0.0142 | recall=0.1295 | thresh=0.765 | lr=1.50e-04
+2485.9s 245 [26/200] step 159/637  loss=0.5078
+2505.4s 246 [26/200] step 318/637  loss=0.5080
+2524.9s 247 [26/200] step 477/637  loss=0.5080
+2544.6s 248 [26/200] step 636/637  loss=0.5082
+2553.6s 249 pred: min=0.0000 max=0.8730 mean=0.158367 p99=0.7100
+2553.6s 250 Epoch  26 | loss=0.5081 | val_loss=0.5236 | auc_pr=0.0138 | recall=0.1209 | thresh=0.745 | lr=1.50e-04
+2573.1s 251 [27/200] step 159/637  loss=0.5079
+2592.7s 252 [27/200] step 318/637  loss=0.5082
+2612.4s 253 [27/200] step 477/637  loss=0.5082
+2632.2s 254 [27/200] step 636/637  loss=0.5079
+2641.3s 255 pred: min=0.0000 max=0.8853 mean=0.150470 p99=0.7202
+2641.3s 256 Epoch  27 | loss=0.5079 | val_loss=0.5250 | auc_pr=0.0139 | recall=0.0852 | thresh=0.772 | lr=1.50e-04
+2660.8s 257 [28/200] step 159/637  loss=0.5086
+2680.4s 258 [28/200] step 318/637  loss=0.5079
+2700.0s 259 [28/200] step 477/637  loss=0.5080
+2719.7s 260 [28/200] step 636/637  loss=0.5078
+2728.6s 261 pred: min=0.0000 max=0.9023 mean=0.151232 p99=0.7349
+2728.6s 262 Epoch  28 | loss=0.5078 | val_loss=0.5251 | auc_pr=0.0139 | recall=0.1068 | thresh=0.781 | lr=1.50e-04
+2748.0s 263 [29/200] step 159/637  loss=0.5068
+2767.6s 264 [29/200] step 318/637  loss=0.5072
+2787.1s 265 [29/200] step 477/637  loss=0.5072
+2806.8s 266 [29/200] step 636/637  loss=0.5074
+2816.0s 267 pred: min=0.0000 max=0.8940 mean=0.145908 p99=0.7100
+2816.0s 268 Epoch  29 | loss=0.5074 | val_loss=0.5269 | auc_pr=0.0136 | recall=0.1080 | thresh=0.752 | lr=1.50e-04
+2835.3s 269 [30/200] step 159/637  loss=0.5071
+2854.9s 270 [30/200] step 318/637  loss=0.5072
+2874.6s 271 [30/200] step 477/637  loss=0.5072
+2894.2s 272 [30/200] step 636/637  loss=0.5073
+2903.3s 273 pred: min=0.0000 max=0.8999 mean=0.146406 p99=0.7344
+2903.3s 274 Epoch  30 | loss=0.5073 | val_loss=0.5285 | auc_pr=0.0136 | recall=0.1385 | thresh=0.765 | lr=1.50e-04  VRAM=0.1GB
+2922.7s 275 [31/200] step 159/637  loss=0.5074
+2942.2s 276 [31/200] step 318/637  loss=0.5074
+2961.7s 277 [31/200] step 477/637  loss=0.5075
+2981.2s 278 [31/200] step 636/637  loss=0.5072
+2990.4s 279 pred: min=0.0000 max=0.9048 mean=0.135640 p99=0.7485
+2990.4s 280 Epoch  31 | loss=0.5072 | val_loss=0.5316 | auc_pr=0.0136 | recall=0.1655 | thresh=0.771 | lr=7.50e-05
+3009.7s 281 [32/200] step 159/637  loss=0.5069
+3029.1s 282 [32/200] step 318/637  loss=0.5069
+3048.6s 283 [32/200] step 477/637  loss=0.5070
+3068.2s 284 [32/200] step 636/637  loss=0.5070
+3077.5s 285 pred: min=0.0000 max=0.8970 mean=0.131888 p99=0.7280
+3077.5s 286 Epoch  32 | loss=0.5070 | val_loss=0.5321 | auc_pr=0.0138 | recall=0.1080 | thresh=0.771 | lr=7.50e-05
+3096.8s 287 [33/200] step 159/637  loss=0.5067
+3116.1s 288 [33/200] step 318/637  loss=0.5065
+3135.6s 289 [33/200] step 477/637  loss=0.5066
+3155.2s 290 [33/200] step 636/637  loss=0.5064
+3164.3s 291 pred: min=0.0000 max=0.8970 mean=0.132673 p99=0.7188
+3164.3s 292 Epoch  33 | loss=0.5064 | val_loss=0.5322 | auc_pr=0.0134 | recall=0.0919 | thresh=0.763 | lr=7.50e-05
+3183.6s 293 [34/200] step 159/637  loss=0.5065
+3203.0s 294 [34/200] step 318/637  loss=0.5066
+3222.4s 295 [34/200] step 477/637  loss=0.5064
+3241.9s 296 [34/200] step 636/637  loss=0.5064
+3251.0s 297 pred: min=0.0000 max=0.9014 mean=0.133236 p99=0.7300
+3251.0s 298 Epoch  34 | loss=0.5064 | val_loss=0.5333 | auc_pr=0.0130 | recall=0.1269 | thresh=0.761 | lr=7.50e-05
+3270.4s 299 [35/200] step 159/637  loss=0.5063
+3289.8s 300 [35/200] step 318/637  loss=0.5061
+3309.3s 301 [35/200] step 477/637  loss=0.5060
+3328.9s 302 [35/200] step 636/637  loss=0.5059
+3338.0s 303 pred: min=0.0000 max=0.9067 mean=0.124603 p99=0.7363
+3338.0s 304 Epoch  35 | loss=0.5058 | val_loss=0.5362 | auc_pr=0.0137 | recall=0.1198 | thresh=0.776 | lr=7.50e-05
+3357.3s 305 [36/200] step 159/637  loss=0.5061
+3376.7s 306 [36/200] step 318/637  loss=0.5062
+3396.2s 307 [36/200] step 477/637  loss=0.5062
+3415.9s 308 [36/200] step 636/637  loss=0.5062
+3424.9s 309 pred: min=0.0000 max=0.9106 mean=0.132288 p99=0.7354
+3424.9s 310 Epoch  36 | loss=0.5062 | val_loss=0.5350 | auc_pr=0.0136 | recall=0.1191 | thresh=0.774 | lr=7.50e-05
+3444.3s 311 [37/200] step 159/637  loss=0.5058
+3463.7s 312 [37/200] step 318/637  loss=0.5060
+3483.1s 313 [37/200] step 477/637  loss=0.5059
+3502.6s 314 [37/200] step 636/637  loss=0.5060
+3511.7s 315 pred: min=0.0000 max=0.9014 mean=0.126703 p99=0.7324
+3511.7s 316 Epoch  37 | loss=0.5060 | val_loss=0.5359 | auc_pr=0.0139 | recall=0.1170 | thresh=0.772 | lr=7.50e-05
+3531.1s 317 [38/200] step 159/637  loss=0.5057
+3550.6s 318 [38/200] step 318/637  loss=0.5056
+3570.1s 319 [38/200] step 477/637  loss=0.5055
+3589.6s 320 [38/200] step 636/637  loss=0.5056
+3598.7s 321 pred: min=0.0000 max=0.8950 mean=0.129455 p99=0.7212
+3598.7s 322 Epoch  38 | loss=0.5056 | val_loss=0.5354 | auc_pr=0.0135 | recall=0.1022 | thresh=0.765 | lr=7.50e-05
+3618.0s 323 [39/200] step 159/637  loss=0.5049
+3637.4s 324 [39/200] step 318/637  loss=0.5055
+3656.7s 325 [39/200] step 477/637  loss=0.5056
+3676.2s 326 [39/200] step 636/637  loss=0.5055
+3685.1s 327 pred: min=0.0000 max=0.8999 mean=0.123295 p99=0.7217
+3685.1s 328 Epoch  39 | loss=0.5055 | val_loss=0.5394 | auc_pr=0.0134 | recall=0.1189 | thresh=0.757 | lr=7.50e-05
+3704.5s 329 [40/200] step 159/637  loss=0.5053
+3723.9s 330 [40/200] step 318/637  loss=0.5055
+3743.2s 331 [40/200] step 477/637  loss=0.5055
+3762.5s 332 [40/200] step 636/637  loss=0.5055
+3771.5s 333 pred: min=0.0000 max=0.8999 mean=0.120652 p99=0.7358
+3771.5s 334 Epoch  40 | loss=0.5055 | val_loss=0.5396 | auc_pr=0.0133 | recall=0.1295 | thresh=0.769 | lr=3.75e-05  VRAM=0.1GB
+3790.8s 335 [41/200] step 159/637  loss=0.5046
+3810.1s 336 [41/200] step 318/637  loss=0.5052
+3829.5s 337 [41/200] step 477/637  loss=0.5052
+3849.0s 338 [41/200] step 636/637  loss=0.5052
+3857.9s 339 pred: min=0.0000 max=0.8965 mean=0.117373 p99=0.7285
+3857.9s 340 Epoch  41 | loss=0.5052 | val_loss=0.5418 | auc_pr=0.0133 | recall=0.1055 | thresh=0.771 | lr=3.75e-05
+3877.3s 341 [42/200] step 159/637  loss=0.5053
+3896.7s 342 [42/200] step 318/637  loss=0.5051
+3916.0s 343 [42/200] step 477/637  loss=0.5051
+3935.4s 344 [42/200] step 636/637  loss=0.5050
+3944.4s 345 pred: min=0.0000 max=0.8979 mean=0.120337 p99=0.7280
+3944.4s 346 Epoch  42 | loss=0.5050 | val_loss=0.5404 | auc_pr=0.0134 | recall=0.1006 | thresh=0.772 | lr=3.75e-05
+3963.7s 347 [43/200] step 159/637  loss=0.5048
+3983.1s 348 [43/200] step 318/637  loss=0.5051
+4002.4s 349 [43/200] step 477/637  loss=0.5051
+4021.9s 350 [43/200] step 636/637  loss=0.5051
+4030.7s 351 pred: min=0.0000 max=0.8999 mean=0.121668 p99=0.7275
+4030.7s 352 Epoch  43 | loss=0.5051 | val_loss=0.5406 | auc_pr=0.0135 | recall=0.1489 | thresh=0.754 | lr=3.75e-05
+4030.7s 353 
+4030.7s 354 Early stopping tại epoch 43 (không cải thiện sau 30 epochs)
+4030.7s 355 
+4030.7s 356 ============================================================
+4030.7s 357 BƯỚC 5: Evaluate trên test set
+4030.7s 358 ============================================================
+4093.2s 359 
+4093.2s 360 ============================================================
+4093.2s 361 KẾT QUẢ CUỐI CÙNG
+4093.2s 362 ============================================================
+4093.2s 363 Best epoch  : 13
+4093.2s 364 Val AUC-PR  : 0.0153
+4093.2s 365 Test AUC-PR : 0.0162  (baseline=0.0011)
+4093.2s 366 Test AUC-ROC: 0.9056
+4093.2s 367 Test Recall : 0.1380
+4093.2s 368 Test Prec   : 0.0296
+4093.2s 369 Test F1     : 0.0488
+4093.2s 370 Test CSI    : 0.0250
+4093.2s 371 Threshold   : 0.721
+4093.2s 372 TP=2,260  FP=74,048  FN=14,118  TN=13,597,518
+4093.2s 373 
+4093.2s 374 Summary → /kaggle/working/summary_20260428_1418.txt
+4093.9s 375 Loss curve → /kaggle/working/loss_curve_20260428_1418.png
+4093.9s 376 
+4093.9s 377 ============================================================
+4093.9s 378 HOÀN TẤT
+4093.9s 379 Model    : /kaggle/working/best_model_20260428_1418.pt
+4093.9s 380 AUC-PR   : 0.0162
+4093.9s 381 Recall   : 0.1380
+4093.9s 382 F1       : 0.0488
+4093.9s 383 CSI      : 0.0250
+4093.9s 384 ============================================================
+4100.0s 385 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+4100.0s 386 cells[i][c] = re.sub('\\\\\|', '|', cell)
+4100.3s 387 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+4100.3s 388 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+4101.0s 389 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+4101.3s 390 [NbConvertApp] Writing 68695 bytes to __notebook__.ipynb
+4103.6s 391 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+4104.8s 392 [NbConvertApp] Writing 472496 bytes to __results__.html

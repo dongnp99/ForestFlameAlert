@@ -60,7 +60,7 @@ DATE_CHUNK = 30
 def _sigmoid(x: np.ndarray) -> np.ndarray:
     return np.where(x >= 0, 1.0 / (1.0 + np.exp(-x)), np.exp(x) / (1.0 + np.exp(x)))
 
-# ── Feature columns (must match model) ────────────────────────────────────────
+#  Feature columns (must match model) 
 FEATURE_COLS = [
     "tmean", "rh", "wind", "rain", "vpd",
     "rain_14d_sum", "rain_30d_sum", "vpd_14d_mean", "vpd_30d_mean",
@@ -88,24 +88,28 @@ DISPLAY_WEATHER = ["tmean", "rh", "vpd", "rain_14d_sum", "vpd_14d_mean"]
 DISPLAY_HUMAN   = ["burn_season_flag", "fire_freq_5y", "dist_road_km",
                    "lulc_class", "dist_settlement_km"]
 
-# ── SHAP group index mapping ──────────────────────────────────────────────────
+#  SHAP group index mapping 
 _feat_index = {f: i for i, f in enumerate(FEATURE_COLS)}
 GROUP_INDICES = {
     g: [_feat_index[f] for f in feats if f in _feat_index]
     for g, feats in SHAP_GROUPS.items()
 }
 
-# ── Load model ─────────────────────────────────────────────────────────────────
+# Số feature mỗi nhóm — dùng để chuẩn hóa khi so sánh
+N_FEAT = {g: len(indices) for g, indices in GROUP_INDICES.items()}
+# shap_human: 17 features, shap_natural: 35 features
+
+#  Load model ─
 log.info("Loading model: %s", MODEL_PATH)
 model = xgb.Booster()
 model.load_model(MODEL_PATH)
 model.set_param("nthread", str(-1))
 
-# ── Load coordinates ──────────────────────────────────────────────────────────
+#  Load coordinates 
 coords = pd.read_csv(COORDS_PATH)
 log.info("Loaded %d grid coordinates", len(coords))
 
-# ── Scan dates ─────────────────────────────────────────────────────────────────
+#  Scan dates ─
 log.info("Scanning dates for 2023–2024...")
 date_df = pd.read_parquet(
     DATA_PATH, columns=["date"],
@@ -119,7 +123,7 @@ all_dates = np.sort(date_df["date"].unique())
 del date_df; gc.collect()
 log.info("Total dates: %d", len(all_dates))
 
-# ── Output columns ─────────────────────────────────────────────────────────────
+#  Output columns ─
 MAP_COLS = ["date", "grid_id", "fire_prob", "fire", "dominant_factor",
             "fire_type", "fire_subtype", "confidence_score"]
 
@@ -131,12 +135,12 @@ DETAIL_COLS = (
        "confidence_score", "matched_pathways"]
 )
 
-# ── Writers ────────────────────────────────────────────────────────────────────
+#  Writers 
 _map_writer:    Optional[pq.ParquetWriter] = None
 _detail_writer: Optional[pq.ParquetWriter] = None
 _summary_rows = []
 
-# ── Chunked inference ──────────────────────────────────────────────────────────
+#  Chunked inference 
 n_chunks = int(np.ceil(len(all_dates) / DATE_CHUNK))
 
 for i in range(n_chunks):
@@ -146,7 +150,7 @@ for i in range(n_chunks):
              pd.Timestamp(chunk_dates[0]).date(),
              pd.Timestamp(chunk_dates[-1]).date())
 
-    # ── Load ───────────────────────────────────────────────────────────────
+    #  Load ─
     read_cols = ["date", "grid_id", "fire"] + FEATURE_COLS
     chunk_df = pd.read_parquet(
         DATA_PATH, columns=read_cols,
@@ -159,33 +163,59 @@ for i in range(n_chunks):
     chunk_df[FEATURE_COLS] = chunk_df[FEATURE_COLS].astype("float32")
     X = chunk_df[FEATURE_COLS].values
 
-    # ── Predict + SHAP ────────────────────────────────────────────────────
+    #  Predict + SHAP 
     dmat     = xgb.DMatrix(X, feature_names=FEATURE_COLS)
     contribs = model.predict(dmat, pred_contribs=True, approx_contribs=True)
     raw_score = contribs.sum(axis=1)
     chunk_df["fire_prob"] = _sigmoid(raw_score).astype("float32")
 
-    shap_vals = contribs[:, :-1]
-    np.abs(shap_vals, out=shap_vals)
+    # Giữ nguyên dấu để phân biệt đóng góp tăng/giảm xác suất cháy
+    shap_signed = contribs[:, :-1]   # shape (n_rows, n_features), có dấu +/-
 
-    for group_name, indices in GROUP_INDICES.items():
-        chunk_df[group_name] = shap_vals[:, indices].sum(axis=1).astype("float32")
+    #  Chỉ lấy SHAP dương (features tích cực đẩy prob cháy lên) 
+    # SHAP âm = feature đang giảm rủi ro → không phải nguyên nhân gây cháy
+    shap_pos = np.maximum(shap_signed, 0).astype("float32")
 
-    group_total = chunk_df[SHAP_COLS].sum(axis=1).clip(lower=1e-8)
-    for col in SHAP_COLS:
-        chunk_df[col] = (chunk_df[col] / group_total * 100).round(1).astype("float32")
+    # Cộng theo nhóm rồi chia số feature → so sánh công bằng (per-feature avg)
+    h_idx = GROUP_INDICES["shap_human"]
+    n_idx = GROUP_INDICES["shap_natural"]
+    pos_h_sum = shap_pos[:, h_idx].sum(axis=1)
+    pos_n_sum = shap_pos[:, n_idx].sum(axis=1)
 
-    # ── Dominant factor (rule-based) ──────────────────────────────────────
+    shap_h_avg = (pos_h_sum / N_FEAT["shap_human"]).astype("float32")   # avg SHAP+ / feature
+    shap_n_avg = (pos_n_sum / N_FEAT["shap_natural"]).astype("float32")
+    avg_total  = (shap_h_avg + shap_n_avg).clip(min=1e-8)
+
+    # Lưu dưới dạng normalized % (shap_human + shap_natural = 100%)
+    # → nếu shap_human > 50% thì fire_type = "Con người" (luôn nhất quán)
+    chunk_df["shap_human"]   = (shap_h_avg / avg_total * 100).round(1).astype("float32")
+    chunk_df["shap_natural"] = (shap_n_avg / avg_total * 100).round(1).astype("float32")
+
+    #  Dominant factor (rule-based) 
     chunk_df["dominant_factor"] = compute_dominant_factor(chunk_df)
 
-    # ── Fire type classification (Tầng 2 — Option C) ─────────────────────
+    #  Fire type classification ─
+    fire_type_shap = np.where(shap_h_avg >= shap_n_avg, "Con người", "Tự nhiên")
+
     fire_type_df = classify_fire_type(chunk_df)
-    chunk_df["fire_type"]        = fire_type_df["fire_type"]
-    chunk_df["fire_subtype"]     = fire_type_df["fire_subtype"]
-    chunk_df["confidence_score"] = fire_type_df["confidence_score"]
+
+    subtype = fire_type_df["fire_subtype"].to_numpy(dtype=object).copy()
+    switched = (fire_type_shap == "Tự nhiên") & (fire_type_df["fire_type"] == "Con người").values
+    subtype[switched] = "Thời tiết / Tự nhiên"
+
+    # Confidence = normalized % của nhóm chiếm ưu thế (luôn > 50% nếu phân loại rõ ràng)
+    confidence = np.where(
+        fire_type_shap == "Con người",
+        shap_h_avg / avg_total,
+        shap_n_avg / avg_total,
+    ).astype("float32")
+
+    chunk_df["fire_type"]        = pd.Categorical(fire_type_shap)
+    chunk_df["fire_subtype"]     = pd.Categorical(subtype)
+    chunk_df["confidence_score"] = confidence
     chunk_df["matched_pathways"] = fire_type_df["matched_pathways"]
 
-    # ── Daily summary for dashboard ───────────────────────────────────────
+    #  Daily summary for dashboard ─
     daily_summary = (
         chunk_df[chunk_df["fire"] == 1]
         .groupby(["date", "fire_type", "fire_subtype"])
@@ -194,21 +224,21 @@ for i in range(n_chunks):
     )
     _summary_rows.append(daily_summary)
 
-    # ── Build map rows ────────────────────────────────────────────────────
+    #  Build map rows 
     map_chunk = chunk_df[MAP_COLS].merge(coords, on="grid_id", how="left")
     map_chunk["date"]      = pd.to_datetime(map_chunk["date"])
     map_chunk["fire_prob"] = map_chunk["fire_prob"].astype("float32")
     map_chunk["fire"]      = map_chunk["fire"].astype("int8")
     map_chunk.sort_values(["date", "grid_id"], inplace=True)
 
-    # ── Build detail rows ─────────────────────────────────────────────────
+    #  Build detail rows ─
     detail_chunk = chunk_df[DETAIL_COLS].copy()
     detail_chunk["date"]      = pd.to_datetime(detail_chunk["date"])
     detail_chunk["fire_prob"] = detail_chunk["fire_prob"].astype("float32")
     detail_chunk["fire"]      = detail_chunk["fire"].astype("int8")
     detail_chunk.sort_values(["grid_id", "date"], inplace=True)
 
-    # ── Write ─────────────────────────────────────────────────────────────
+    #  Write ─
     map_table    = pa.Table.from_pandas(map_chunk,    preserve_index=False)
     detail_table = pa.Table.from_pandas(detail_chunk, preserve_index=False)
 
@@ -220,11 +250,11 @@ for i in range(n_chunks):
     _map_writer.write_table(map_table)
     _detail_writer.write_table(detail_table)
 
-    del chunk_df, X, dmat, contribs, shap_vals, raw_score
+    del chunk_df, X, dmat, contribs, shap_signed, shap_pos, raw_score
     del fire_type_df, map_chunk, detail_chunk, map_table, detail_table
     gc.collect()
 
-# ── Finalise ───────────────────────────────────────────────────────────────────
+#  Finalise ─
 if _map_writer:    _map_writer.close()
 if _detail_writer: _detail_writer.close()
 

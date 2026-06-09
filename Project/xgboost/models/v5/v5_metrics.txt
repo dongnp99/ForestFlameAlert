@@ -1,0 +1,20 @@
+Best iteration: 611
+Loading val set (2021-12-31 – 2022-12-31)...
+Val size: 6,863,095
+Val  — OVERALL  (n=6,863,095, fire_rate=0.00083)
+AUC-PR : 0.020031
+ROC-AUC: 0.928709
+Val  — PER-GROUP
+Human (score>0)       n= 1101458  fire= 2405  AUC-PR=0.027300  ROC-AUC=0.901187
+Natural (score=0)     n= 5761637  fire= 3280  AUC-PR=0.015054  ROC-AUC=0.926071
+Loading test set (> 2022-12-31)...
+Test size: 13,744,993
+Test — OVERALL  (n=13,744,993, fire_rate=0.00119)
+AUC-PR : 0.019042
+ROC-AUC: 0.919399
+Test — PER-GROUP
+Human (score>0)       n= 2161199  fire= 6246  AUC-PR=0.024517  ROC-AUC=0.888339
+Natural (score=0)     n=11583794  fire=10157  AUC-PR=0.016495  ROC-AUC=0.918795
+SUMMARY — XGBoost v5 (pathway-aware features)
+Val  AUC-PR : 0.020031  |  ROC-AUC: 0.928709
+Test AUC-PR : 0.019042  |  ROC-AUC: 0.919399

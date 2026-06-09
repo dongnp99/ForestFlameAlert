@@ -52,9 +52,9 @@ def export_year(year):
         .filterDate(start, end)
         .filterBounds(grid_fc)
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 30))
-        # ── Fix: lọc bỏ ảnh có system:time_start bị null ──────────
+        #  Fix: lọc bỏ ảnh có system:time_start bị null
         .filter(ee.Filter.notNull(["system:time_start"]))
-        # ── Fix: lọc bỏ ảnh thiếu band cần thiết ──────────────────
+        #  Fix: lọc bỏ ảnh thiếu band cần thiết
         .filter(ee.Filter.listContains("system:band_names", "B8"))
         .filter(ee.Filter.listContains("system:band_names", "B11"))
         .filter(ee.Filter.listContains("system:band_names", "B12"))

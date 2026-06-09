@@ -66,7 +66,6 @@ VAL_END   = pd.to_datetime(VAL_END_DATE)
 # ============================================================
 
 def load_split(date_filters):
-    """Load FEATURE_COLS + fire + date (date needed for temporal sampling)."""
     return pd.read_parquet(
         DATA_PATH,
         columns=FEATURE_COLS + ["fire", "date"],
@@ -168,31 +167,31 @@ gc.collect()
 
 def objective(trial):
     params = {
-        # ── Tree structure ──
+        #  Tree structure 
         "max_depth":         trial.suggest_int("max_depth", 6, 11),
         "min_child_weight":  trial.suggest_int("min_child_weight", 2, 15),
 
-        # ── Learning ──
+        #  Learning 
         "learning_rate":     trial.suggest_float("learning_rate", 0.015, 0.08),
 
-        # ── Sampling ──
+        #  Sampling 
         "subsample":         trial.suggest_float("subsample", 0.6, 0.95),
         # colsample_bytree: mở rộng xuống 0.5 vì nhiều correlated features
         "colsample_bytree":  trial.suggest_float("colsample_bytree", 0.5, 0.85),
 
-        # ── Regularization ──
+        #  Regularization 
         "gamma":             trial.suggest_float("gamma", 0.0, 5.0),
         # reg_alpha/lambda: tăng lower bound vì pathway features correlated
         "reg_lambda":        trial.suggest_float("reg_lambda", 1.0, 12.0),
         "reg_alpha":         trial.suggest_float("reg_alpha", 0.5, 8.0),
 
-        # ── Class balance ──
+        #  Class balance 
         # Mở rộng range vì graduated weighting đã thay đổi effective balance
         "scale_pos_weight":  trial.suggest_float(
             "scale_pos_weight", base_spw * 0.6, base_spw * 1.3
         ),
 
-        # ── Fixed ──
+        #  Fixed 
         "objective":   "binary:logistic",
         "eval_metric": "aucpr",
         "tree_method": "hist",

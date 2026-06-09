@@ -5,7 +5,7 @@ from pathlib import Path
 # CONFIG
 # =========================
 ERA5_DIR = Path("out_csv")      # thư mục chứa các file theo tháng
-OUT_FILE = "daklak_era5_firms.csv"
+OUT_FILE = "../final_inputs/raw_data/daklak_era5.csv"
 
 # =========================
 # LOAD ALL CSV
